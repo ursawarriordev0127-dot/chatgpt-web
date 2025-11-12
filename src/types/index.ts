@@ -5,6 +5,7 @@ export interface RequestLoginParams {
   code?: string | number
   password?: string
   invite_code?: string
+  is_signup?: boolean
 }
 
 export interface UserInfo {

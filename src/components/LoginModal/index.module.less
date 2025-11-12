@@ -202,3 +202,152 @@
     outline: none;
   }
 }
+
+.signupPrompt {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #6b7280;
+
+  span {
+    color: #6b7280;
+  }
+}
+
+.signupLink {
+  background: none;
+  border: none;
+  color: #2563EB;
+  font-size: 14px;
+  padding: 0;
+  height: auto;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  margin-left: 4px;
+
+  &:hover {
+    opacity: .9;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.termsWrapper {
+  margin-bottom: 24px;
+  margin-top: 8px;
+
+  :global(.ant-form-item-explain-error) {
+    margin-top: 8px;
+    color: #ff4d4f;
+    font-size: 13px;
+  }
+
+  :global(.ant-form-item-has-error) {
+    .termsText {
+      border-left: 3px solid #ff4d4f;
+      padding-left: 12px;
+      margin-left: -12px;
+    }
+  }
+}
+
+.termsCheckbox {
+  display: flex !important;
+  align-items: flex-start !important;
+  cursor: pointer !important;
+
+  :global(.ant-checkbox) {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  :global(.ant-checkbox-wrapper) {
+    align-items: flex-start !important;
+    cursor: pointer !important;
+  }
+
+  :global(.ant-checkbox-inner) {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #d1d5db;
+  }
+
+  :global(.ant-checkbox-checked .ant-checkbox-inner) {
+    background-color: #5a8ec8;
+    border-color: #5a8ec8;
+  }
+
+  :global(.ant-checkbox + span) {
+    padding-left: 12px;
+    padding-right: 0;
+    cursor: pointer;
+  }
+}
+
+.termsText {
+  display: inline-block;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #4a5568;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+
+  p {
+    margin: 0 0 10px 0;
+    cursor: pointer;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &:hover {
+    color: #2d3748;
+  }
+}
+
+.termsAgree {
+  margin-top: 16px !important;
+  color: #2d3748;
+  font-size: 14px;
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.inlineCheckbox {
+  cursor: pointer;
+
+  :global(.ant-checkbox-inner) {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #d1d5db;
+  }
+
+  :global(.ant-checkbox-checked .ant-checkbox-inner) {
+    background-color: #5a8ec8;
+    border-color: #5a8ec8;
+  }
+
+  :global(.ant-checkbox + span) {
+    padding-left: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &:hover {
+    :global(.ant-checkbox-inner) {
+      border-color: #5a8ec8;
+    }
+  }
+}

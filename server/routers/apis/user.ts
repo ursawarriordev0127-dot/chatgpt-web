@@ -38,12 +38,12 @@ const router = express.Router()
 
 // Login/Register
 router.post('/login', async (req, res, next) => {
-    const { account, code, password, invite_code } = req.body
+    const { account, code, password, invite_code, is_signup } = req.body
     const user_agent = req.headers['user-agent'] || ''
     const ip = getClientIP(req)
 
 
-    console.log('------------------------------->', account, code, password, invite_code)
+    console.log('------------------------------->', account, code, password, invite_code, is_signup)
 
 
     if (!account || (!code && !password)) {
@@ -75,8 +75,82 @@ router.post('/login', async (req, res, next) => {
         await redis.select(0).del(`code:${account}`)
     }
 
-    if (account && code && password && !userInfo) {
-        // All three elements exist but user info doesn't, so this is registration
+    // Allow registration with just email and password (no verification code required)
+    if (account && password && !code && is_signup) {
+        // Check if user already exists when trying to register
+        if (userInfo) {
+            res.status(406).json(httpBody(-1, 'Email already registered. Please login or use a different email address.'))
+            return
+        }
+        
+        // Register without verification code
+        try {
+            const today = new Date()
+            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+            const register_reward = (await configModel.getConfigValue('register_reward')) || 0
+            userInfo = await userModel
+                .addUserInfo(
+                    filterObjectNull({
+                        id: generateUserId,
+                        account,
+                        ip,
+                        nickname: 'Chat User',
+                        avatar:
+                            'https://u1.dl0.cn/icon/1682426702646avatarf3db669b024fad66-1930929abe2847093.png',
+                        status: 1,
+                        role: 'user',
+                        password: generateMd5(password),
+                        integral: Number(register_reward),
+                        vip_expire_time: formatTime('yyyy-MM-dd HH:mm:ss', yesterday),
+                        svip_expire_time: formatTime('yyyy-MM-dd HH:mm:ss', yesterday),
+                        invite_code: generateInviteCode,
+                        user_agent,
+                        superior_id: superiorInfo ? superiorInfo.id : null,
+                        cashback_ratio
+                    })
+                )
+                .then((addRes) => {
+                    const turnoverId = generateNowflakeId(1)()
+                    turnoverModel.addTurnover({
+                        id: turnoverId,
+                        user_id: generateUserId,
+                        describe: 'Registration Reward',
+                        value: `${register_reward} points`
+                    })
+
+                    // Insert an invitation record
+                    if (invite_code && superiorInfo && superiorInfo.id) {
+                        const inviteRecordId = generateNowflakeId(2)()
+                        inviteRecordModel.addInviteRecord({
+                            id: inviteRecordId,
+                            user_id: generateUserId,
+                            invite_code,
+                            superior_id: superiorInfo.id,
+                            reward: invite_reward,
+                            reward_type: 'integral',
+                            status: 3,
+                            remark: 'Pending Review',
+                            ip,
+                            user_agent
+                        })
+                    }
+                    return addRes
+                })
+            isSignin = false
+            actionModel.addAction({
+                id: generateNowflakeId(23)(),
+                user_id: userInfo.id,
+                ip,
+                type: 'register',
+                describe: 'Register Account'
+            })
+        } catch (error) {
+            console.log(error)
+            res.status(500).json(httpBody(-1, 'Server error'))
+            return
+        }
+    } else if (account && code && password && !userInfo) {
+        // All three elements exist but user info doesn't, so this is registration with verification code
         // Register
         try {
             const today = new Date()

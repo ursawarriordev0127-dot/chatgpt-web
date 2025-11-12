@@ -1,7 +1,7 @@
 import { userAsync } from '@/store/async'
 import { RequestLoginParams } from '@/types'
-import { Button, Form, FormInstance, Modal, message, Input } from 'antd'
-import { useLocation } from 'react-router-dom'
+import { Button, Form, FormInstance, Modal, message, Input, Checkbox } from 'antd'
+import { useLocation, useNavigate } from 'react-router-dom'
 import LogoImg from '@/assets/logo.jpeg'
 import styles from './index.module.less'
 
@@ -15,6 +15,7 @@ export function LoginCard(props: {
   onSuccess: () => void
 }) {
   const location = useLocation()
+  const navigate = useNavigate()
 
   function getQueryParam(key: string) {
     const queryString = location.search || window.location.search
@@ -27,7 +28,7 @@ export function LoginCard(props: {
       <div className={styles.loginCard}>
         <div className={styles.loginForm}>
           <h1 className={styles.title}><img src={LogoImg} alt="logo" className={styles.logo} /></h1>
-          <h2 className="mt-4 text-center text-xl font-bold md:mt-6 md:text-2xl">Log in to your account</h2>
+          <h2 className="mt-4 text-center text-xl font-bold md:mt-6 md:text-2xl">Case Prep Casey</h2>
 
           <Form
             form={props.form}
@@ -37,13 +38,9 @@ export function LoginCard(props: {
                 const res = await userAsync.fetchLogin({ ...e, invite_code: getQueryParam('invite_code') })
 
                 if (res.code) {
-                  // Show error message from API
-                  const errorMsg = res.message || 'Login failed. Please check your credentials and try again.'
-                  message.error({
-                    content: errorMsg,
-                    duration: 5
-                  })
-                  throw new Error(errorMsg)
+                  // Error notification is automatically shown by request interceptor
+                  // Don't show duplicate message here
+                  return
                 }
 
                 // Success
@@ -52,29 +49,10 @@ export function LoginCard(props: {
                   duration: 2
                 })
                 props.onSuccess?.()
-                return Promise.resolve()
               } catch (error: any) {
                 console.error('[LOGIN] Error:', error)
-
-                // Handle network errors or other errors
-                let errorMsg = 'Network error, please try again later.'
-
-                if (error?.message && !error.message.includes('Network error')) {
-                  errorMsg = error.message
-                } else if (error?.data?.message) {
-                  errorMsg = error.data.message
-                } else if (error?.code === 504) {
-                  errorMsg = 'Request timeout. Please check if the server is running and try again.'
-                } else if (error?.name === 'TypeError' || error?.message?.includes('Failed to fetch')) {
-                  errorMsg = 'Cannot connect to server. Please make sure the backend server is running on port 3200.'
-                }
-
-                // Show error message (the interceptor only shows network errors, not API errors)
-                message.error({
-                  content: errorMsg,
-                  duration: 5
-                })
-                throw error
+                // Error notification is automatically shown by request interceptor
+                // Don't show duplicate message here
               }
             }}
             layout="vertical"
@@ -126,11 +104,163 @@ export function LoginCard(props: {
                 Sign In
               </Button>
             </Form.Item>
-
-            <div className={styles.forgotPassword}>
-              <button type="button" className={styles.forgotPasswordLink}>Forgot your password?</button>
-            </div>
           </Form>
+
+          <div className={styles.signupPrompt}>
+            <span>New to Case Prep Casey? </span>
+            <button
+              type="button"
+              className={styles.signupLink}
+              onClick={() => navigate('/signup')}
+            >
+              Sign up now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Signup Card Component
+export function SignupCard(props: {
+  form: FormInstance<RequestLoginParams>
+  onSuccess: () => void
+}) {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  function getQueryParam(key: string) {
+    const queryString = location.search || window.location.search
+    const urlParams = new URLSearchParams(queryString)
+    return urlParams.get(key) || ''
+  }
+
+  return (
+    <div className={styles.loginContainer}>
+      <div className={styles.loginCard}>
+        <div className={styles.loginForm}>
+          <h1 className={styles.title}><img src={LogoImg} alt="logo" className={styles.logo} /></h1>
+          <h2 className="mt-4 text-center text-xl font-bold md:mt-6 md:text-2xl">Join Case Prep Casey</h2>
+
+          <Form
+            form={props.form}
+            className={styles.formContainer}
+            onFinish={async (e) => {
+              try {
+                // Using the same login endpoint for registration
+                // The backend should handle registration based on whether user exists
+                const res = await userAsync.fetchLogin({ ...e, invite_code: getQueryParam('invite_code'), is_signup: true })
+
+                if (res.code) {
+                  // Error notification is automatically shown by request interceptor
+                  // Don't show duplicate message here
+                  return
+                }
+
+                message.success({
+                  content: 'Account created successfully! Welcome to Case Prep Casey!',
+                  duration: 3
+                })
+                props.onSuccess?.()
+              } catch (error: any) {
+                console.error('[SIGNUP] Error:', error)
+                // Error notification is automatically shown by request interceptor
+                // Don't show duplicate message here
+              }
+            }}
+            layout="vertical"
+          >
+            <Form.Item
+              name="account"
+              required={false}
+              label={<span className={styles.fieldLabel}>Email</span>}
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter email'
+                },
+                {
+                  type: 'email',
+                  message: 'Please enter a valid email'
+                }
+              ]}
+              className={styles.inputWrapper}
+            >
+              <Input
+                size="large"
+                placeholder=""
+              />
+            </Form.Item>
+
+            <Form.Item
+              required={false}
+              name="password"
+              label={<span className={styles.fieldLabel}>Password</span>}
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter password'
+                },
+                {
+                  min: 8,
+                  message: 'Password must be at least 8 characters'
+                }
+              ]}
+              className={styles.inputWrapper}
+            >
+              <Input
+                size="large"
+                type="password"
+                placeholder=""
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="agreeToTerms"
+              valuePropName="checked"
+              rules={[
+                {
+                  validator: (_, value) =>
+                    value ? Promise.resolve() : Promise.reject(new Error('You must agree to the terms to continue'))
+                }
+              ]}
+              className={styles.termsWrapper}
+            >
+              <div className={styles.termsText}>
+                <p>I understand that Case Prep Casey is only intended for paying agents in the EngageLine community.</p>
+                <p>I understand that if I share my login credentials or allow others to use my account, my access to Case Prep Casey will be immediately terminated.</p>
+                <p>Login activity will be monitored.</p>
+                <p className={styles.termsAgree}>
+                  <Checkbox className={styles.inlineCheckbox}>
+                    <strong>I have read and agree to these terms.</strong>
+                  </Checkbox>
+                </p>
+              </div>
+            </Form.Item>
+
+            <Form.Item className={styles.submitWrapper}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                className={styles.loginButton}
+                block
+              >
+                Sign Up
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <div className={styles.signupPrompt}>
+            <span>Already have an account? </span>
+            <button
+              type="button"
+              className={styles.signupLink}
+              onClick={() => navigate('/login')}
+            >
+              Sign in
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -14,27 +14,32 @@ function AuthRouter(props: AuthRouterProps) {
   const { pathname } = location
   const routerDetail = searchRouteDetail(pathname, [...webRouter, ...adminRouter])
   const title = routerDetail?.configure?.title
+  
   useEffect(() => {
     if (title) {
       document.title = title
     }
-    if(token && user_info && location.pathname.includes('/login')){
+    
+    // If user is logged in and tries to access login or signup, redirect to home
+    if (token && user_info && (pathname.includes('/login') || pathname.includes('/signup'))) {
       navigate('/casey')
       return 
     }
+    
     const userRole = user_info?.role || 'user'
+    
+    // If route requires authentication and user is not logged in, redirect to login
     if (routerDetail?.configure?.verifToken && !token) {
-      navigate('/')
       navigate('/login', {
         state: {
-          form: routerDetail?.path
+          from: routerDetail?.path
         }
       })
     } else if (token && !routerDetail?.configure?.role.includes(userRole)) {
-      navigate('/casey')
+      // If user doesn't have the right role, redirect to 404
       navigate('/404')
     }
-  }, [pathname, routerDetail])
+  }, [pathname, routerDetail, token, user_info])
 
   return <>{props.children}</>
 }

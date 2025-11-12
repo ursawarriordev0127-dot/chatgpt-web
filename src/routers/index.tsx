@@ -16,6 +16,7 @@ export interface RouteOptions extends Omit<Omit<RouteObject, 'children'>, 'index
 const ChatPage = React.lazy(() => import('@/pages/chat'))
 const UserPage = React.lazy(() => import('@/pages/user'))
 const LoginPage = React.lazy(() => import('@/pages/login'))
+const SignupPage = React.lazy(() => import('@/pages/signup'))
 const ResultPage = React.lazy(() => import('@/pages/result'))
 const Page404 = React.lazy(() => import('@/pages/404'))
 
@@ -41,12 +42,22 @@ import AdminPluginPage from '@/pages/admin/plugin'
 
 export const webRouter: RouteOptions[] = [
   {
+    id: 'Home',
+    path: '/',
+    element: <ChatPage />,
+    children: [],
+    configure: {
+      verifToken: true,
+      role: ['user', 'administrator']
+    }
+  },
+  {
     id: 'ChatPage',
     path: '/casey',
     element: <ChatPage />,
     children: [],
     configure: {
-      verifToken: false,
+      verifToken: true,
       role: ['user', 'administrator']
     }
   },
@@ -64,6 +75,16 @@ export const webRouter: RouteOptions[] = [
     id: 'LoginPage',
     path: '/login',
     element: <LoginPage />,
+    children: [],
+    configure: {
+      verifToken: false,
+      role: ['user', 'administrator']
+    }
+  },
+  {
+    id: 'SignupPage',
+    path: '/signup',
+    element: <SignupPage />,
     children: [],
     configure: {
       verifToken: false,
