@@ -102,11 +102,27 @@ router.post('/chat/completion', async (req: ExpressRequest, res, next) => {
   // Prepare API options
   const apiOptions: any = { ...options }
   
+  // Check environment variable for GPT-5 streaming support
+  const gpt5StreamingEnabled = process.env.GPT5_STREAMING_ENABLED === 'true'
+  
   // GPT-5 and newer models use 'max_completion_tokens' instead of 'max_tokens'
   if (apiOptions.model && (apiOptions.model.includes('gpt-5') || apiOptions.model.includes('o1') || apiOptions.model.includes('o3'))) {
     if (apiOptions.max_tokens) {
       apiOptions.max_completion_tokens = apiOptions.max_tokens
       delete apiOptions.max_tokens
+    }
+    // GPT-5 only supports temperature value of 1 (default)
+    // Remove temperature parameter to use the default
+    if (apiOptions.temperature !== undefined && apiOptions.temperature !== 1) {
+      console.log(`[GPT-5 Fix] Removing unsupported temperature value: ${apiOptions.temperature} for model: ${apiOptions.model}`)
+      delete apiOptions.temperature
+    }
+    // Also remove other parameters that may not be supported
+    if (apiOptions.presence_penalty !== undefined && apiOptions.presence_penalty !== 0) {
+      delete apiOptions.presence_penalty
+    }
+    if (apiOptions.frequency_penalty !== undefined && apiOptions.frequency_penalty !== 0) {
+      delete apiOptions.frequency_penalty
     }
   } else {
     // For older models, remove max_tokens if it's null or undefined
@@ -191,11 +207,43 @@ router.post('/chat/completions', async (req: ExpressRequest, res, next) => {
   }
   
   // GPT-5 and newer models use 'max_completion_tokens' instead of 'max_tokens'
-  if (options.model && (options.model.includes('gpt-5') || options.model.includes('o1') || options.model.includes('o3'))) {
+  const isGPT5OrNewer = options.model && (options.model.includes('gpt-5') || options.model.includes('o1') || options.model.includes('o3'))
+  
+  if (isGPT5OrNewer) {
+    console.log(`[GPT-5 Request] Model: ${options.model}, Original params:`, {
+      temperature: options.temperature,
+      presence_penalty: options.presence_penalty,
+      frequency_penalty: options.frequency_penalty,
+      max_tokens: options.max_tokens
+    })
+    
     if (options.max_tokens) {
       options.max_completion_tokens = options.max_tokens
       delete options.max_tokens
     }
+    // GPT-5 only supports temperature value of 1 (default)
+    // Remove temperature parameter to use the default
+    if (options.temperature !== undefined && options.temperature !== 1) {
+      console.log(`[GPT-5 Fix] Removing unsupported temperature value: ${options.temperature}`)
+      delete options.temperature
+    }
+    // Also remove other parameters that may not be supported
+    if (options.presence_penalty !== undefined && options.presence_penalty !== 0) {
+      console.log(`[GPT-5 Fix] Removing unsupported presence_penalty value: ${options.presence_penalty}`)
+      delete options.presence_penalty
+    }
+    if (options.frequency_penalty !== undefined && options.frequency_penalty !== 0) {
+      console.log(`[GPT-5 Fix] Removing unsupported frequency_penalty value: ${options.frequency_penalty}`)
+      delete options.frequency_penalty
+    }
+    
+    console.log(`[GPT-5 Request] Cleaned params for API call:`, {
+      model: options.model,
+      max_completion_tokens: options.max_completion_tokens,
+      temperature: options.temperature,
+      presence_penalty: options.presence_penalty,
+      frequency_penalty: options.frequency_penalty
+    })
   } else {
     // For older models, remove max_tokens if it's null or undefined
     if (options.max_tokens === null || options.max_tokens === undefined) {
@@ -454,7 +502,8 @@ router.post('/chat/completions', async (req: ExpressRequest, res, next) => {
   let selectPlugin: { [key: string]: string } | undefined = undefined
   let selectPluginModel: string | undefined = undefined
   if (installedPluginIds && installedPluginIds.length > 0) {
-	selectPluginModel = options.model.includes('gpt-4') || options.model.includes('gpt-5') ? 'gpt-4' : 'gpt-5-mini'
+	// Use the same model for plugin function calls, or fall back to gpt-3.5-turbo
+	selectPluginModel = options.model.includes('gpt-4') || options.model.includes('gpt-5') ? options.model : 'gpt-3.5-turbo'
     // View plugins
     const plugins = await pluginModel.getInPlugins(installedPluginIds)
     // Get proxy agent from environment variables

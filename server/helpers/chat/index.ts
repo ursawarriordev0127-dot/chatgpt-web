@@ -16,6 +16,7 @@ function getProxyAgent(): HttpsProxyAgent<string> | HttpProxyAgent<string> | und
   if (httpsProxy) {
     try {
       const url = new URL(httpsProxy)
+      console.log(`[Proxy] Using proxy: ${url.protocol}//${url.hostname}:${url.port}`)
       if (url.protocol === 'https:') {
         return new HttpsProxyAgent<string>(httpsProxy)
       } else {
@@ -25,6 +26,8 @@ function getProxyAgent(): HttpsProxyAgent<string> | HttpProxyAgent<string> | und
       console.error('[Proxy Error] Invalid proxy URL:', httpsProxy, error)
       return undefined
     }
+  } else {
+    console.warn('[Proxy] No proxy configured. If you encounter geographic restrictions, set HTTPS_PROXY environment variable.')
   }
   return undefined
 }
@@ -109,7 +112,9 @@ async function streamChatCompletions(
   try {
     // Get proxy agent from environment variables
     const proxyAgent = getProxyAgent()
+    console.log(`[Chat Request] Model: ${options.model}, Using proxy: ${proxyAgent ? 'Yes' : 'No'}`)
     const chat = await fetchChatCompletions(aikeyInfo, options, proxyAgent)
+    
     if (chat.status === 200 && chat.headers.get('content-type')?.includes('text/event-stream')) {
       // 想在这里打印数据
       let allContent = ''
@@ -144,14 +149,37 @@ async function streamChatCompletions(
     // Handle non-200 status codes
     const errorData = await chat.json().catch(() => ({}))
     let errorMessage = 'Request exception, please try again later.'
+    let shouldRetryWithoutStream = false
     
     // Handle specific OpenAI API errors
     if (errorData.error) {
       const errorCode = errorData.error.code || ''
       const errorType = errorData.error.type || ''
+      const errorParam = errorData.error.param || ''
+      const errorMsg = (errorData.error.message || '').toLowerCase()
       
-      if (errorCode === 'unsupported_country_region_territory' || errorType === 'request_forbidden') {
-        errorMessage = 'Your country/region is not supported by the API. Please contact the administrator or use a VPN/proxy.'
+      // Check if this is an organization verification error for streaming
+      // More robust detection for various error message formats
+      if (
+        (errorCode === 'unsupported_value' && errorParam === 'stream') ||
+        (errorMsg.includes('organization must be verified') && errorMsg.includes('stream')) ||
+        (errorMsg.includes('verified to stream'))
+      ) {
+        console.log('[Stream Fallback] Organization not verified for streaming. Will retry without stream...')
+        console.log('[Stream Fallback] Error details:', { code: errorCode, param: errorParam, message: errorData.error.message })
+        shouldRetryWithoutStream = true
+      } else if (errorCode === 'unsupported_country_region_territory' || errorType === 'request_forbidden') {
+        const proxyConfigured = process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+        if (!proxyConfigured) {
+          console.error('[Geographic Restriction] Your country/region is blocked by OpenAI. No proxy configured!')
+          console.error('[Geographic Restriction] Please configure a proxy by setting HTTPS_PROXY environment variable.')
+          console.error('[Geographic Restriction] Example: HTTPS_PROXY=http://proxy-server:port')
+          errorMessage = 'Your country/region is not supported by the API. Please configure a proxy/VPN. See server logs for instructions.'
+        } else {
+          console.error('[Geographic Restriction] Your country/region is blocked even with proxy configured.')
+          console.error('[Geographic Restriction] Current proxy:', proxyConfigured)
+          errorMessage = 'Your country/region is not supported by the API. The configured proxy may not be working. Please check your proxy settings.'
+        }
       } else if (errorCode === 'invalid_api_key') {
         errorMessage = 'Invalid API key. Please contact the administrator.'
       } else if (errorCode === 'insufficient_quota') {
@@ -160,6 +188,69 @@ async function streamChatCompletions(
         errorMessage = 'Rate limit exceeded. Please try again later.'
       } else if (errorData.error.message) {
         errorMessage = errorData.error.message
+      }
+    }
+    
+    // Retry without streaming if organization is not verified
+    if (shouldRetryWithoutStream && options.stream) {
+      console.log('[Stream Fallback] Attempting non-streaming request...')
+      const nonStreamOptions = { ...options, stream: false }
+      const nonStreamChat = await fetchChatCompletions(aikeyInfo, nonStreamOptions, proxyAgent)
+      
+      if (nonStreamChat.status === 200) {
+        const jsonResponse = await nonStreamChat.json()
+        const responseContent = jsonResponse.choices?.[0]?.message?.content || ''
+        
+        // Simulate streaming response for consistent frontend behavior
+        res.setHeader('Content-Type', 'text/event-stream;charset=utf-8')
+        
+        const parentMessageId = content?.parentMessageId || 'assistantMessageId'
+        const sendStreamResponse = () => {
+          // Send start segment
+          res.write(JSON.stringify({
+            id: jsonResponse.id || 'assistant',
+            role: 'assistant',
+            segment: 'start',
+            dateTime: new Date().toISOString(),
+            content: '',
+            parentMessageId,
+            ...(content?.pluginInfo ? { pluginInfo: content.pluginInfo } : {})
+          }) + '\n\n')
+          
+          // Send content in chunks to simulate streaming
+          const chunkSize = 5
+          for (let i = 0; i < responseContent.length; i += chunkSize) {
+            const chunk = responseContent.substring(i, i + chunkSize)
+            res.write(JSON.stringify({
+              id: jsonResponse.id || 'assistant',
+              role: 'assistant',
+              segment: 'text',
+              dateTime: new Date().toISOString(),
+              content: chunk,
+              parentMessageId
+            }) + '\n\n')
+          }
+          
+          // Send end segment
+          res.write(JSON.stringify({
+            id: jsonResponse.id || 'assistant',
+            role: 'assistant',
+            segment: 'stop',
+            dateTime: new Date().toISOString(),
+            content: '',
+            parentMessageId
+          }) + '\n\n')
+          
+          res.end()
+          stopCallback(responseContent)
+        }
+        
+        sendStreamResponse()
+        console.log('[Stream Fallback] Non-streaming request successful!')
+        return
+      } else {
+        const retryErrorData = await nonStreamChat.json().catch(() => ({}))
+        errorMessage = retryErrorData.error?.message || 'Failed to complete request even without streaming.'
       }
     }
     

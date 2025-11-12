@@ -60,7 +60,7 @@ const configStore = create<ConfigState>()(
       ],
       config: {
         model: 'gpt-5',
-        temperature: 0.8,
+        temperature: 1,
         presence_penalty: 0,
         frequency_penalty: 0,
         max_tokens: 1888

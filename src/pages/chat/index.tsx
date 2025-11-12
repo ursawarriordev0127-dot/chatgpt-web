@@ -328,7 +328,7 @@ function ChatPage() {
                 )
               })}
               {chatMessages.length <= 0 && <Reminder />}
-              <div style={{ height: 80 }} />
+              <div style={{ height: 250 }} />
             </div>
           </div>
           <div

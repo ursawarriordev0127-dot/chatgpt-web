@@ -1,8 +1,8 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { useLayoutEffect, useMemo, useRef } from 'react'
 import { copyToClipboard, joinTrim } from '@/utils'
 import styles from './index.module.less'
 import OpenAiLogo from '@/components/OpenAiLogo'
-import { Space, Popconfirm, message, Dropdown } from 'antd'
+import { message, Dropdown } from 'antd'
 
 import MarkdownIt from 'markdown-it'
 import mdKatex from '@traptitech/markdown-it-katex'
@@ -10,8 +10,8 @@ import mila from 'markdown-it-link-attributes'
 import hljs from 'highlight.js'
 import { CopyOutlined, DeleteOutlined, MoreOutlined, RedoOutlined } from '@ant-design/icons'
 
-import smallLogo from '@/assets/small logo.jpeg'
-import avatarIcon from '@/assets/avatar.png'
+// import smallLogo from '@/assets/small logo.jpeg'
+// import avatarIcon from '@/assets/avatar.png'
 import { PluginInfo } from '@/types'
 import PluginCard from '@/components/PluginCard'
 
@@ -203,22 +203,14 @@ function ChatMessage({
         justifyContent: position === 'right' ? 'flex-end' : 'flex-start'
       }}
     >
-      {useMemo(() => {
+      {/* {useMemo(() => {
         return chatAvatar({
           style: { marginRight: 8 },
           isShow: position === 'left',
           icon: smallLogo
         })
-      }, [])}
+      }, [])} */}
       <div className={styles.chatMessage_content}>
-        <span
-          className={styles.chatMessage_content_time}
-          style={{
-            textAlign: position === 'right' ? 'right' : 'left'
-          }}
-        >
-          {time}
-        </span>
         {pluginInfo && <PluginCard {...pluginInfo} />}
         <div
           className={joinTrim([
@@ -266,13 +258,13 @@ function ChatMessage({
           </div>
         </div>
       </div>
-      {useMemo(() => {
+      {/* {useMemo(() => {
         return chatAvatar({
           style: { marginLeft: 8 },
           isShow: position === 'right',
           icon: avatarIcon
         })
-      }, [])}
+      }, [])} */}
     </div>
   )
 }
