@@ -1,0 +1,318 @@
+// Animation keyframes
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.chatMessage{
+    display: flex;
+    margin-top: 12px;
+    
+    // Only animate on initial mount, not on updates
+    &:not([data-animated]) {
+        animation: fadeInUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        animation-fill-mode: both;
+        
+        // Reduced stagger animation delay for faster display
+        &:nth-child(1) { animation-delay: 0s; }
+        &:nth-child(2) { animation-delay: 0.01s; }
+        &:nth-child(3) { animation-delay: 0.02s; }
+        &:nth-child(4) { animation-delay: 0.03s; }
+        &:nth-child(5) { animation-delay: 0.04s; }
+        &:nth-child(n+6) { animation-delay: 0.05s; }
+    }
+    
+    &_avatarCard{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.2s ease;
+        
+        &:hover {
+            transform: scale(1.05);
+        }
+        
+        img {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            
+            &:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                transform: scale(1.05);
+            }
+        }
+    }
+    
+    &_content{
+        display: flex;
+        flex-direction: column;
+        width: calc(100% - 42px);
+        
+        &_time{
+            margin-top: 4px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: #6b7280;
+            font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            opacity: 0.8;
+            text-transform: uppercase;
+            transition: opacity 0.2s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        &_text{
+            max-width: calc(100% - 42px);
+            display: inline-block;
+            padding: 16px 20px;
+            position: relative;
+            font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.65;
+            letter-spacing: -0.01em;
+            color: #1a1a1a;
+            transition: box-shadow 0.2s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            
+            // No animation on text content to prevent interference with streaming
+            animation: none !important;
+            
+            // Style markdown content
+            :global(.markdown-body) {
+                font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                font-size: 16px !important;
+                font-weight: 400 !important;
+                line-height: 1.65 !important;
+                letter-spacing: -0.01em !important;
+                color: #1a1a1a !important;
+                -webkit-font-smoothing: antialiased !important;
+                -moz-osx-font-smoothing: grayscale !important;
+                
+                // Headings
+                h1, h2, h3, h4, h5, h6 {
+                    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    font-weight: 700 !important;
+                    letter-spacing: -0.02em !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                // Paragraphs
+                p {
+                    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    font-size: 16px !important;
+                    line-height: 1.65 !important;
+                    letter-spacing: -0.01em !important;
+                    margin-bottom: 12px !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                // Lists
+                ul, ol {
+                    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    font-size: 16px !important;
+                    line-height: 1.65 !important;
+                    letter-spacing: -0.01em !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                li {
+                    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    font-size: 16px !important;
+                    line-height: 1.65 !important;
+                    letter-spacing: -0.01em !important;
+                    margin-bottom: 6px !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                // Code blocks
+                code {
+                    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", "Courier New", monospace !important;
+                    font-size: 14px !important;
+                    font-weight: 500 !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                pre {
+                    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", "Courier New", monospace !important;
+                    font-size: 14px !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                // Links
+                a {
+                    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    font-weight: 500 !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                // Blockquotes
+                blockquote {
+                    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    font-size: 16px !important;
+                    line-height: 1.65 !important;
+                    letter-spacing: -0.01em !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+                
+                // Tables
+                table {
+                    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    font-size: 15px !important;
+                    -webkit-font-smoothing: antialiased !important;
+                    -moz-osx-font-smoothing: grayscale !important;
+                }
+            }
+            
+            &:hover {
+                transform: translateY(-1px);
+            }
+        }
+        
+        &_operate{
+            position: absolute;
+            bottom: 2px;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            
+            .chatMessage_content_text:hover & {
+                opacity: 1;
+            }
+            
+            &_icon{
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+                color: #666;
+                transition: all 0.2s ease;
+                border-radius: 4px;
+                
+                &:hover {
+                    background-color: rgba(0, 0, 0, 0.05);
+                    color: #1677ff;
+                    transform: scale(1.1);
+                }
+            }
+        }
+        
+        .left{
+            margin-right: auto;
+            background: linear-gradient(135deg, #f4f6f8 0%, #f0f2f5 100%);
+            border-top-left-radius: 2px;
+            border-top-right-radius: 18px;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            color: #1a1a1a;
+            
+            // No animation to prevent interference with streaming
+            animation: none !important;
+            
+            &:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+        }
+        
+        .right{
+            margin-left: auto;
+            background: linear-gradient(135deg, #cdeeff 0%, #b8e5ff 100%);
+            border-top-left-radius: 18px;
+            border-top-right-radius: 2px;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            color: #1a1a1a;
+            
+            // No animation to prevent interference with streaming
+            animation: none !important;
+            
+            &:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+        }
+    }
+    
+    // Loading state animation - only pulse the loading indicator, not the whole text
+    &[data-status="loading"] {
+        .chatMessage_content_text {
+            // Remove pulse animation from text to prevent interference with streaming
+            animation: none;
+        }
+    }
+    
+    // Ensure content updates don't retrigger animations
+    &[data-status="pass"] {
+        .chatMessage_content_text {
+            animation: none;
+        }
+    }
+}

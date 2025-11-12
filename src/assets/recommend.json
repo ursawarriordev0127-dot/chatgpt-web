@@ -1,0 +1,14 @@
+[
+  {
+    "key": "awesome-chatgpt-prompts-zh",
+    "desc": "🤖️ ChatGPT Chinese Prompt Guide",
+    "downloadUrl": "https://raw.githubusercontent.com/PlexPt/awesome-chatgpt-prompts-zh/main/prompts-zh.json",
+    "url": "https://github.com/PlexPt/awesome-chatgpt-prompts-zh"
+  },
+  {
+    "key": "awesome-chatgpt-prompts-zh-TW",
+    "desc": "🤖️ ChatGPT Traditional Chinese Prompt Guide (Converted from Simplified Chinese to Traditional Chinese with the assistance of OpenAI / OpenCC)",
+    "downloadUrl": "https://raw.githubusercontent.com/PlexPt/awesome-chatgpt-prompts-zh/main/prompts-zh-TW.json",
+    "url": "https://github.com/PlexPt/awesome-chatgpt-prompts-zh"
+  }
+]
