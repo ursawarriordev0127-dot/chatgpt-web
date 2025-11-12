@@ -118,12 +118,53 @@ The `Host` address of the request server.
 3. If you need help, please submit [Issues](https://github.com/79E/ChatGPT-Web/issues) or leave your contact information when sponsoring.
 
 ## 🎯 Deployment
-> Simply upload the packaged `dist` directory of the `WEB` project to the server. Pay attention to the server IP address location!
+
+### 🚀 AWS EC2 Deployment (Recommended)
+
+**Complete deployment guides are available:**
+
+📘 **Quick Start (20 minutes):** See [DEPLOY-README.md](./DEPLOY-README.md) - Start here!  
+📘 **AWS Quick Guide:** See [AWS-QUICKSTART.md](./AWS-QUICKSTART.md)  
+📘 **Full Documentation:** See [DEPLOYMENT.md](./DEPLOYMENT.md)  
+📁 **Directory Structure:** See [DIRECTORY-STRUCTURE.md](./DIRECTORY-STRUCTURE.md)  
+✅ **Deployment Checklist:** See [DEPLOYMENT-CHECKLIST.md](./DEPLOYMENT-CHECKLIST.md)
+
+**Super Quick Deploy (5 commands):**
+```bash
+# 1. Connect to AWS
+ssh -i your-key.pem ubuntu@your-ec2-ip
+
+# 2. Install dependencies
+sudo apt update && sudo apt upgrade -y
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs build-essential git nginx
+sudo npm install -g pm2
+
+# 3. Clone & Build
+cd /home/ubuntu
+git clone https://github.com/YOUR-USERNAME/chatgpt-web.git
+cd chatgpt-web
+npm install && npm run build
+
+# 4. Configure & Start
+sudo cp nginx.conf /etc/nginx/sites-available/chatgpt-web
+sudo ln -s /etc/nginx/sites-available/chatgpt-web /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl restart nginx
+pm2 start ecosystem.config.js && pm2 save && pm2 startup
+
+# 5. Done! Visit your EC2 IP address
+```
+
+This setup deploys both frontend and backend in one process using PM2 + Nginx.
 
 ### Vercel
 If you host it on your own Vercel server, you can click the deploy button to start your deployment!
 
 [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/79E/ChatGpt-Web)
+
+### Other Deployment Methods
+> Simply upload the packaged `dist` directory of the `WEB` project to the server. Pay attention to the server IP address location!
 
 If you need help, please submit [Issues](https://github.com/79E/ChatGPT-Web/issues) or leave your contact information when sponsoring.
 
