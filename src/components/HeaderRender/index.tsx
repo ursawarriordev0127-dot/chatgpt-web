@@ -152,11 +152,11 @@ function HeaderRender(props: HeaderViewProps) {
   )
 
   const navItems = [
-    { path: '/feed', label: 'Home' },
-    { path: '/courses', label: 'Classroom' },
-    { path: '/events', label: 'Live Trainings!' },
-    { path: '/c/upcoming-events', label: 'Events!' },
-    { path: '/casey', label: 'Casey' }
+    { path: 'https://sfg.engageline.com/feed', label: 'Home' },
+    { path: 'https://sfg.engageline.com/courses', label: 'Classroom' },
+    { path: 'https://sfg.engageline.com/events', label: 'Live Trainings!' },
+    { path: 'https://sfg.engageline.com/c/upcoming-events', label: 'Events!' },
+    { path: 'http://casey.engageline.com/', label: 'Casey' }
   ]
 
   const logoMenuItems: Array<{ key: string; icon: React.ReactNode; label: string }> = []
