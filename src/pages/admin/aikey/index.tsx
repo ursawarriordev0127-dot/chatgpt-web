@@ -20,6 +20,7 @@ import {
 import { ProTable } from '@ant-design/pro-components'
 import { Button, Form, Progress, Space, Tag, message } from 'antd'
 import { useRef, useState } from 'react'
+import moment from 'moment'
 
 const getModels = (type: string) => {
   if (type === 'stability') {
@@ -104,17 +105,18 @@ function AikeyPage() {
     {
       title: 'ID',
       dataIndex: 'id',
-      width: 180,
+      width: "3%",
       fixed: 'left'
     },
     {
       title: 'KEY',
       dataIndex: 'key',
-      width: 200
+      width: "10%",
     },
     {
       title: 'HOST',
       dataIndex: 'host',
+      width: "10%",
       render: (_, data) => {
         return (
           <a href={data.host} target="_blank" rel="noreferrer">
@@ -126,7 +128,7 @@ function AikeyPage() {
     {
       title: 'Available Models',
       dataIndex: 'models',
-      width: 200,
+      width: "10%",
       render: (_, data) => {
         if (!data.models) return '-'
         const modelTag = data.models.split(',').map((model) => {
@@ -138,54 +140,46 @@ function AikeyPage() {
     {
       title: 'AI Type',
       dataIndex: 'type',
+      width: "5%",
       render: (_, data) => <Tag>{data.type}</Tag>
     },
     {
       title: 'Remarks',
-      dataIndex: 'remarks'
+      dataIndex: 'remarks',
+      width: "8%",
     },
+    // {
+    //   title: 'Status',
+    //   dataIndex: 'status',
+    //   width: "10%",
+    //   render: (_, data) => (
+    //     <Space direction="vertical">
+    //       <Tag color={data.status ? 'green' : 'red'}>{data.status ? 'Normal' : 'Abnormal'}</Tag>
+    //       <Tag color={data.check ? 'green' : 'red'}>
+    //         {data.check ? 'Check Availability' : 'Don\'t Check Availability'}
+    //       </Tag>
+    //     </Space>
+    //   )
+    // },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      render: (_, data) => (
-        <Space direction="vertical">
-          <Tag color={data.status ? 'green' : 'red'}>{data.status ? 'Normal' : 'Abnormal'}</Tag>
-          <Tag color={data.check ? 'green' : 'red'}>
-            {data.check ? 'Check Availability' : 'Don\'t Check Availability'}
-          </Tag>
-        </Space>
-      )
-    },
-    {
-      title: 'Quota',
-      dataIndex: 'limit',
-      width: 160,
+      title: 'Created At',
+      dataIndex: 'create_time',
+      width: "8%",
       render: (_, data) => {
-        return (
-          <div>
-            <p>Total: {data.limit.toFixed(2)}</p>
-            <p>Used: {data.usage}</p>
-            <p>Remaining: {(data.limit - data.usage).toFixed(2)}</p>
-            <Progress
-              percent={Number(((data.usage / data.limit) * 100).toFixed(2))}
-              format={() => ''}
-              size="small"
-            />
-          </div>
-        )
+        return <div>{moment(data.create_time).format('YYYY-MM-DD HH:mm')}</div>
       }
     },
     {
-      title: 'Created At',
-      dataIndex: 'create_time'
-    },
-    {
       title: 'Updated At',
-      dataIndex: 'update_time'
+      dataIndex: 'update_time',
+      width: "8%",
+      render: (_, data) => {
+        return <div>{moment(data.update_time).format('YYYY-MM-DD HH:mm')}</div>
+      }
     },
     {
       title: 'Actions',
-      width: 160,
+      width: "7%",
       valueType: 'option',
       fixed: 'right',
       render: (_, data) => [
@@ -247,7 +241,7 @@ function AikeyPage() {
         actionRef={tableActionRef}
         columns={columns}
         scroll={{
-          x: 1600
+          x: 1400
         }}
         request={async (params, sorter, filter) => {
           // Form search items will be passed from params to the backend API.
@@ -267,18 +261,18 @@ function AikeyPage() {
         }}
         toolbar={{
           actions: [
-            <Button
-              key="primary"
-              type="primary"
-              size="small"
-              onClick={() => {
-                postAdminAikeyCheck({ all: true }).then(() => {
-                  message.success('Refresh submitted successfully, please check later')
-                })
-              }}
-            >
-              Async Refresh Quota
-            </Button>,
+            // <Button
+            //   key="primary"
+            //   type="primary"
+            //   size="small"
+            //   onClick={() => {
+            //     postAdminAikeyCheck({ all: true }).then(() => {
+            //       message.success('Refresh submitted successfully, please check later')
+            //     })
+            //   }}
+            // >
+            //   Async Refresh Quota
+            // </Button>,
             <Button
               key="primary"
               type="primary"
@@ -311,7 +305,7 @@ function AikeyPage() {
         initialValues={{
           status: 1,
           type: 'openai',
-		  check: 0
+          check: 0
         }}
         onOpenChange={(visible) => {
           if (!visible) {
@@ -390,7 +384,7 @@ function AikeyPage() {
             ]}
             rules={[{ required: true, message: 'AI Type' }]}
           />
-          <ProFormRadio.Group
+          {/* <ProFormRadio.Group
             name="status"
             label="Status"
             radioType="button"
@@ -419,7 +413,7 @@ function AikeyPage() {
                 value: 1
               }
             ]}
-          />
+          /> */}
         </ProFormGroup>
         <ProFormDependency name={['type']}>
           {({ type }) => {
@@ -485,7 +479,7 @@ function AikeyPage() {
             )
           }}
         </ProFormDependency>
-		<ProFormText name="remarks" label="Remarks" placeholder="Remarks" />
+        <ProFormText name="remarks" label="Remarks" placeholder="Remarks" />
       </ModalForm>
     </div>
   )

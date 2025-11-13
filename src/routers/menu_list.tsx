@@ -88,11 +88,11 @@ const admin = {
           name: 'User List',
           icon: <IdcardFilled />
         },
-        {
-          path: '/admin/turnover',
-          name: 'Consumption Records',
-          icon: <ReconciliationFilled />
-        },
+        // {
+        //   path: '/admin/turnover',
+        //   name: 'Consumption Records',
+        //   icon: <ReconciliationFilled />
+        // },
         // {
         //   path: '/admin/signin',
         //   name: 'Sign-in Records',

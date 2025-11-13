@@ -15,6 +15,7 @@ import {
 import { ProTable } from '@ant-design/pro-components'
 import { Tag, Button, Space, message, Form } from 'antd'
 import { useRef, useState } from 'react'
+import moment from 'moment';
 
 function UserPage() {
   const tableActionRef = useRef<ActionType>()
@@ -37,42 +38,43 @@ function UserPage() {
       width: 200,
       dataIndex: 'account'
     },
-    {
-      title: 'Points',
-      width: 100,
-      dataIndex: 'integral',
-      render: (_, data) => <a>{data.integral} points</a>
-    },
-    {
-      title: 'VIP Expiry Time',
-      dataIndex: 'vip_expire_time',
-      render: (_, data) => {
-        const today = new Date()
-        const todayTime = today.getTime()
-        const userSubscribeTime = new Date(data.vip_expire_time).getTime()
-        return (
-          <Space wrap>
-            <Tag>{data.vip_expire_time}</Tag>
-            {userSubscribeTime < todayTime && <Tag color="red">Expired</Tag>}
-          </Space>
-        )
-      }
-    },
-    {
-      title: 'Super VIP Expiry Time',
-      dataIndex: 'svip_expire_time'
-    },
-    {
-      title: 'User Info',
-      dataIndex: 'user_id',
-      width: 160,
-      render: (_, data) => {
-        return <UserHead headimgurl={data.avatar} nickname={data.nickname} />
-      }
-    },
+    // {
+    //   title: 'Points',
+    //   width: 100,
+    //   dataIndex: 'integral',
+    //   render: (_, data) => <a>{data.integral} points</a>
+    // },
+    // {
+    //   title: 'VIP Expiry Time',
+    //   dataIndex: 'vip_expire_time',
+    //   render: (_, data) => {
+    //     const today = new Date()
+    //     const todayTime = today.getTime()
+    //     const userSubscribeTime = new Date(data.vip_expire_time).getTime()
+    //     return (
+    //       <Space wrap>
+    //         <Tag>{data.vip_expire_time}</Tag>
+    //         {userSubscribeTime < todayTime && <Tag color="red">Expired</Tag>}
+    //       </Space>
+    //     )
+    //   }
+    // },
+    // {
+    //   title: 'Super VIP Expiry Time',
+    //   dataIndex: 'svip_expire_time'
+    // },
+    // {
+    //   title: 'User Info',
+    //   dataIndex: 'user_id',
+    //   width: 160,
+    //   render: (_, data) => {
+    //     return <UserHead headimgurl={data.avatar} nickname={data.nickname} />
+    //   }
+    // },
     {
       title: 'IP',
-      dataIndex: 'ip'
+      dataIndex: 'ip',
+      width: 200,
     },
     {
       title: 'Status',
@@ -84,17 +86,25 @@ function UserPage() {
     },
     {
       title: 'Created At',
-      dataIndex: 'create_time'
+      dataIndex: 'create_time',
+      width: "10%",
+      render: (_, data) => {
+        return <div>{moment(data.create_time).format('YYYY-MM-DD HH:mm')}</div>
+      }
     },
     {
       title: 'Updated At',
-      dataIndex: 'update_time'
+      dataIndex: 'update_time',
+      width: "10%",
+      render: (_, data) => {
+        return <div>{moment(data.update_time).format('YYYY-MM-DD HH:mm')}</div>
+      }
     },
     {
       title: 'Actions',
       width: 150,
       valueType: 'option',
-      fixed: 'right',
+      // fixed: 'right',
       render: (_, data) => [
         <Button
           key="edit"
@@ -140,9 +150,6 @@ function UserPage() {
         columns={columns}
         params={{}}
         pagination={{}}
-        scroll={{
-          x: 1800
-        }}
         request={async (params, sorter, filter) => {
           // Form search items will be passed from params to the backend API.
           const res = await getAdminUsers({
@@ -266,7 +273,7 @@ function UserPage() {
             rules={[{ required: true, message: 'Please enter remaining points' }]}
           />
         </ProFormGroup>
-        <ProFormGroup>
+        {/* <ProFormGroup>
           <ProFormText
             name="nickname"
             label="User Name"
@@ -298,7 +305,7 @@ function UserPage() {
             label="Super VIP Expiry Date"
             rules={[{ required: true, message: 'Please enter remaining points' }]}
           />
-        </ProFormGroup>
+        </ProFormGroup> */}
         {!edidInfoModal?.info?.id && (
           <ProFormText
             name="password"
