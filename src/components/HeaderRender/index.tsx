@@ -297,7 +297,7 @@ function HeaderRender(props: HeaderViewProps) {
                 <li key={item.path} className={styles.nav_item_wrapper}>
                   <button
                     className={`${styles.nav_item} ${isActive ? styles.nav_item_active : ''}`}
-                    onClick={() => navigate(item.path)}
+                    onClick={() => window.open(item.path, '_self')}
                     title={item.label}
                     type="button"
                   >
