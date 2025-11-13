@@ -34,7 +34,33 @@ const userStore = create<userState>()(
       token: undefined,
       setLoginModal: (value) => set({ loginModal: value }),
       login: (data) => set(() => ({ ...data })),
-      logout: () => set(() => ({ user_info: undefined, token: undefined })),
+      logout: () => {
+        set(() => ({ user_info: undefined, token: undefined }))
+        // Clear user login timestamp and force clear persisted storage
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('user_last_login_time')
+          // Force clear the persisted storage to prevent stale tokens
+          try {
+            const userStorage = localStorage.getItem('user_storage')
+            if (userStorage) {
+              const parsed = JSON.parse(userStorage)
+              if (parsed?.state) {
+                parsed.state.token = undefined
+                parsed.state.user_info = undefined
+                localStorage.setItem('user_storage', JSON.stringify(parsed))
+              } else {
+                // Direct format
+                parsed.token = undefined
+                parsed.user_info = undefined
+                localStorage.setItem('user_storage', JSON.stringify(parsed))
+              }
+            }
+          } catch (e) {
+            // If parsing fails, just remove the whole storage
+            localStorage.removeItem('user_storage')
+          }
+        }
+      },
       invitation_records: {
         count: 0,
         rows: []
@@ -83,7 +109,16 @@ const userStore = create<userState>()(
     }),
     {
       name: 'user_storage', // name of item in the storage (must be unique)
-      storage: createJSONStorage(() => localStorage) // (optional) by default the 'localStorage' is used
+      storage: createJSONStorage(() => localStorage), // (optional) by default the 'localStorage' is used
+      // Only persist these fields to ensure isolation
+      partialize: (state) => ({
+        token: state.token,
+        user_info: state.user_info,
+        loginModal: state.loginModal,
+        invitation_records: state.invitation_records,
+        consume_records: state.consume_records,
+        withdrawal_records: state.withdrawal_records
+      })
     }
   )
 )

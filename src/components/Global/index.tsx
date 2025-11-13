@@ -4,7 +4,8 @@ import { useEffect, useLayoutEffect } from 'react'
 import LoginModal from '../LoginModal'
 import ConfigModal from '../ConfigModal'
 import { userStore } from '@/store'
-import { notification } from 'antd'
+import { notification, ConfigProvider } from 'antd'
+import enUS from 'antd/locale/en_US'
 import React from 'react'
 
 type Props = {
@@ -71,7 +72,7 @@ function Global(props: Props) {
   },[notification])
 
   return (
-    <>
+    <ConfigProvider locale={enUS}>
       {props.children}
       <LoginModal
         open={loginModal}
@@ -88,7 +89,7 @@ function Global(props: Props) {
         onChange={changeConfig}
         data={config}
       />
-    </>
+    </ConfigProvider>
   )
 }
 export default Global

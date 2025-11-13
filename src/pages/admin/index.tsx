@@ -5,15 +5,16 @@ import { Dropdown } from 'antd'
 import { LogoutOutlined } from '@ant-design/icons'
 import React, { useState } from 'react'
 import menuList from '@/routers/menu_list'
-import { chatStore, userStore } from '@/store'
+import { adminStore } from '@/store'
 import OpenAiLogo from '@/components/OpenAiLogo'
 
 function AdminPage() {
   const navigate = useNavigate()
-  const { token, user_info, logout } = userStore()
-  const { clearChats } = chatStore()
+  const { admin_token, admin_info, adminLogout } = adminStore()
   const [selectedKeys, setSelectedKeys] = useState<Array<string>>([])
-  if (!token || user_info?.role !== 'administrator') {
+
+  // Check for admin authentication
+  if (!admin_token || !admin_info) {
     return (
       <div
         style={{
@@ -67,7 +68,7 @@ function AdminPage() {
           )
         }}
         avatarProps={{
-          src: user_info?.avatar,
+          src: admin_info?.avatar,
           size: 'small',
           title: 'Super Administrator',
           render: (props: any, dom: React.ReactNode) => {
@@ -78,11 +79,10 @@ function AdminPage() {
                     {
                       key: 'logout',
                       icon: <LogoutOutlined />,
-                      label: 'Logout',
+                      label: 'Admin Logout',
                       onClick: () => {
-                        logout()
-						clearChats()
-                        navigate('/login')
+                        adminLogout()
+                        navigate('/admin/login')
                       }
                     }
                   ]
@@ -102,7 +102,7 @@ function AdminPage() {
                 paddingBlockStart: 12
               }}
             >
-              <div>© 2023 Made with love</div>
+              <div>© 2025 Made with love</div>
               <div>by Chatgpt</div>
             </div>
           )
@@ -122,12 +122,6 @@ function AdminPage() {
           theme: 'light'
         }}
         breadcrumbRender={() => []}
-        footerRender={() => (
-          <DefaultFooter
-            links={[{ key: 'github', title: 'github', href: 'https://github.com/79E/ChatGpt-Web' }]}
-            copyright="ChatGpt"
-          />
-        )}
       >
         <PageContainer>
           <Outlet />

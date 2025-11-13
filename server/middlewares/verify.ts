@@ -42,7 +42,8 @@ async function verify(req: ExpressRequest, res: Response, next: NextFunction) {
       return
     }
   } else {
-    res.status(401).json(httpBody(4001, 'Please login to your account and try again!'))
+    if(tokenInfo !== null)
+      res.status(401).json(httpBody(4001, 'Please login to your account and try again!'))
     return
   }
 

@@ -196,7 +196,7 @@ function OrderPage() {
         //                 });
         //             }}
         //         >
-        //             编辑
+        //             Edit
         //         </Button>,
         //         <Button
         //             key="del"
@@ -207,12 +207,12 @@ function OrderPage() {
         //                     id: data.id
         //                 }).then((res) => {
         //                     if (res.code) return
-        //                     message.success('删除成功')
+        //                     message.success('Deleted successfully')
         //                     tableActionRef.current?.reload()
         //                 })
         //             }}
         //         >
-        //             删除
+        //             Delete
         //         </Button>
         //     ]
         // }
