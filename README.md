@@ -6,19 +6,8 @@
 A commercially-viable ChatGpt web application built with React.
 
 A deployable commercial ChatGpt web application.
-
-[Issues](https://github.com/79E/ChatGPT-Web/issues) / [Buy Me a Coffee](https://www.buymeacoffee.com/beggar) / [Sponsor Me](https://files.catbox.moe/o0znrg.JPG)
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/79E/ChatGpt-Web)
-
+  
 </div>
-
-## Communication & Sponsorship
-<a href='https://t.me/+zMADkTgyzWMyYTk1' target='_blank'>
-<img width='46%' style="border-radius: 12px;" src='https://files.catbox.moe/o0znrg.JPG' />
-</a>
-<a href='https://t.me/+zMADkTgyzWMyYTk1' target='_blank'>
-<img width='46%' style="border-radius: 12px;" src='https://www.helloimg.com/images/2023/06/20/otDPwM.png' />
-</a>
 
 ### Screenshots
 
@@ -34,7 +23,6 @@ A deployable commercial ChatGpt web application.
 - **Modern UI**: Carefully designed interface with responsive design and English localization
 - **High Performance**: Extremely fast first screen loading speed (~100kb)
 - **AI Model Support**: Support for GPT-3.5, GPT-4, GPT-5, Midjourney drawing, DALL·E model drawing, and other AI applications
-- **Rich Prompts**: Massive built-in prompt list from [Chinese](https://github.com/PlexPt/awesome-chatgpt-prompts-zh) and [English](https://github.com/f/awesome-chatgpt-prompts)
 - **Export Functionality**: One-click export chat records with full Markdown support
 - **Flexible API**: Support for custom API addresses (e.g., [OpenAI](https://api.openai.com) / [API2D](https://api2d.com/r/192767))
 - **Plugin System**: Extensible plugin architecture for custom functionality
@@ -67,8 +55,8 @@ yarn -v
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/79E/ChatGpt-Web.git
-cd ChatGpt-Web
+git clone https://github.com/username/chatgpt-web.git
+cd chatgpt-web
 ```
 
 **2. Install dependencies**
@@ -155,9 +143,46 @@ Configure the following in `server/config/index.ts`:
    - After login, configure AI model API keys in the admin panel
    - Ensure at least one API key is configured for the models you want to use (e.g., GPT-5, GPT-4)
 
-If you need help, please submit [Issues](https://github.com/79E/ChatGPT-Web/issues) or leave your contact information when sponsoring.
-
 ## 🎯 Deployment
+
+### 🚀 AWS EC2 Deployment (Recommended)
+
+**Complete deployment guides are available:**
+
+📘 **Quick Start (20 minutes):** See [DEPLOY-README.md](./DEPLOY-README.md) - Start here!  
+📘 **AWS Quick Guide:** See [AWS-QUICKSTART.md](./AWS-QUICKSTART.md)  
+📘 **Full Documentation:** See [DEPLOYMENT.md](./DEPLOYMENT.md)  
+📁 **Directory Structure:** See [DIRECTORY-STRUCTURE.md](./DIRECTORY-STRUCTURE.md)  
+✅ **Deployment Checklist:** See [DEPLOYMENT-CHECKLIST.md](./DEPLOYMENT-CHECKLIST.md)
+
+**Super Quick Deploy (5 commands):**
+```bash
+# 1. Connect to AWS
+ssh -i your-key.pem ubuntu@your-ec2-ip
+
+# 2. Install dependencies
+sudo apt update && sudo apt upgrade -y
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs build-essential git nginx
+sudo npm install -g pm2
+
+# 3. Clone & Build
+cd /home/ubuntu
+git clone https://github.com/YOUR-USERNAME/chatgpt-web.git
+cd chatgpt-web
+npm install && npm run build
+
+# 4. Configure & Start
+sudo cp nginx.conf /etc/nginx/sites-available/chatgpt-web
+sudo ln -s /etc/nginx/sites-available/chatgpt-web /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl restart nginx
+pm2 start ecosystem.config.js && pm2 save && pm2 startup
+
+# 5. Done! Visit your EC2 IP address
+```
+
+This setup deploys both frontend and backend in one process using PM2 + Nginx.
 
 ### Frontend Deployment
 
@@ -184,22 +209,3 @@ If you need help, please submit [Issues](https://github.com/79E/ChatGPT-Web/issu
    ```bash
    pm2 start build/index.js --name chatgpt-web
    ```
-
-### Vercel Deployment
-
-If you host it on your own Vercel server, you can click the deploy button to start your deployment!
-
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/79E/ChatGpt-Web)
-
-**Note:** Vercel deployment is primarily for the frontend. You'll need to deploy the backend separately to a Node.js-compatible hosting service.
-
-If you need help, please submit [Issues](https://github.com/79E/ChatGPT-Web/issues) or leave your contact information when sponsoring.
-
-
-## 🧘 Contributors
-
-[See project contributors list](https://github.com/79E/ChatGPT-Web/graphs/contributors)
-
-## 📋 Open Source License
-
-[![License MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/79E/ChatGpt-Web/blob/master/license)
