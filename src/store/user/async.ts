@@ -8,6 +8,10 @@ export async function fetchLogin(params: RequestLoginParams) {
   const response = await postLogin(params)
   if (!response.code) {
     userStore.getState().login({ ...response.data })
+    // Record user login timestamp
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user_last_login_time', Date.now().toString())
+    }
   }
   return response
 }

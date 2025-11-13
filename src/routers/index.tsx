@@ -39,6 +39,7 @@ import AdminAmountsPage from '@/pages/admin/amounts'
 import AdminDialogPage from '@/pages/admin/dialog'
 import AdminPersonaPage from '@/pages/admin/persona'
 import AdminPluginPage from '@/pages/admin/plugin'
+import AdminLoginPage from '@/pages/admin/login'
 
 export const webRouter: RouteOptions[] = [
   {
@@ -124,6 +125,16 @@ export const webRouter: RouteOptions[] = [
 ]
 
 export const adminRouter: RouteOptions[] = [
+  {
+    id: 'AdminLoginPage',
+    path: '/admin/login',
+    element: <AdminLoginPage />,
+    children: [],
+    configure: {
+      verifToken: false,
+      role: ['user', 'administrator']
+    }
+  },
   {
     id: 'AdminPage',
     path: '/admin',

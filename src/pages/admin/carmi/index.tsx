@@ -237,6 +237,7 @@ function CarmiPage() {
               <DatePicker
                 size="large"
                 format="YYYY-MM-DD"
+                placeholder="Please select date"
                 disabledDate={(current) => {
                   const date = new Date()
                   date.setHours(0, 0, 0, 0)

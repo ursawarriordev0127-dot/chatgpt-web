@@ -64,11 +64,11 @@ const admin = {
       access: 'canAdmin',
       component: './Admin',
       routes: [
-        {
-          path: '/admin/carmi',
-          name: 'Activation Code Management',
-          icon: <LockFilled />
-        },
+        // {
+        //   path: '/admin/carmi',
+        //   name: 'Activation Code Management',
+        //   icon: <LockFilled />
+        // },
         {
           path: '/admin/aikey',
           name: 'AI Key Management',
@@ -93,31 +93,31 @@ const admin = {
           name: 'Consumption Records',
           icon: <ReconciliationFilled />
         },
-        {
-          path: '/admin/signin',
-          name: 'Sign-in Records',
-          icon: <ScheduleFilled />
-        },
-        {
-          path: '/admin/invite',
-          name: 'Invitation Records',
-          icon: <ContactsFilled />
-        },
-        {
-          path: '/admin/cashback',
-          name: 'Commission',
-          icon: <CalculatorFilled />
-        },
-        {
-          path: '/admin/withdrawal',
-          name: 'Withdrawal Requests',
-          icon: <RedEnvelopeFilled />
-        },
-        {
-          path: '/admin/amounts',
-          name: 'Balance Details',
-          icon: <MediumSquareFilled />
-        },
+        // {
+        //   path: '/admin/signin',
+        //   name: 'Sign-in Records',
+        //   icon: <ScheduleFilled />
+        // },
+        // {
+        //   path: '/admin/invite',
+        //   name: 'Invitation Records',
+        //   icon: <ContactsFilled />
+        // },
+        // {
+        //   path: '/admin/cashback',
+        //   name: 'Commission',
+        //   icon: <CalculatorFilled />
+        // },
+        // {
+        //   path: '/admin/withdrawal',
+        //   name: 'Withdrawal Requests',
+        //   icon: <RedEnvelopeFilled />
+        // },
+        // {
+        //   path: '/admin/amounts',
+        //   name: 'Balance Details',
+        //   icon: <MediumSquareFilled />
+        // },
       ]
     },
     {
@@ -125,21 +125,16 @@ const admin = {
       icon: <MessageFilled />,
       path: '/admin_message',
       routes: [
-        {
-          path: '/admin/dialog',
-          name: 'Built-in Conversations',
-          icon: <GitlabFilled />
-        },
-        {
-          path: '/admin/persona',
-          name: 'Persona Configuration',
-          icon: <RedditCircleFilled />
-        },
-        {
-          path: '/admin/plugin',
-          name: 'Plugin Management',
-          icon: <DropboxCircleFilled />
-        },
+        // {
+        //   path: '/admin/dialog',
+        //   name: 'Built-in Conversations',
+        //   icon: <GitlabFilled />
+        // },
+        // {
+        //   path: '/admin/persona',
+        //   name: 'Persona Configuration',
+        //   icon: <RedditCircleFilled />
+        // },
         {
           path: '/admin/messages',
           name: 'Message List',
@@ -147,43 +142,33 @@ const admin = {
         },
       ]
     },
-    {
-      path: '/admin_orders',
-      name: 'Products & Orders',
-      icon: <GoldenFilled />,
-      routes: [
-        {
-          path: '/admin/product',
-          name: 'Product List',
-          icon: <ShopFilled />
-        },
-        {
-          path: '/admin/payment',
-          name: 'Payment Configuration',
-          icon: <MoneyCollectFilled />
-        },
-        {
-          path: '/admin/order',
-          name: 'Payment Orders',
-          icon: <WalletFilled />
-        }
-      ]
-    },
-    {
-      name: 'Notification Configuration',
-      path: '/admin/notification',
-      icon: <NotificationFilled />
-    },
-    {
-      path: '/admin/config',
-      name: 'System Configuration',
-      icon: <SettingFilled />
-    },
-    {
-      path: 'https://github.com/79E/ChatGpt-Web',
-      name: 'Github',
-      icon: <GithubFilled />
-    }
+    // {
+    //   path: '/admin_orders',
+    //   name: 'Products & Orders',
+    //   icon: <GoldenFilled />,
+    //   routes: [
+    //     {
+    //       path: '/admin/payment',
+    //       name: 'Payment Configuration',
+    //       icon: <MoneyCollectFilled />
+    //     },
+    //     {
+    //       path: '/admin/order',
+    //       name: 'Payment Orders',
+    //       icon: <WalletFilled />
+    //     }
+    //   ]
+    // },
+    // {
+    //   name: 'Notification Configuration',
+    //   path: '/admin/notification',
+    //   icon: <NotificationFilled />
+    // },
+    // {
+    //   path: '/admin/config',
+    //   name: 'System Configuration',
+    //   icon: <SettingFilled />
+    // }
   ]
 }
 
