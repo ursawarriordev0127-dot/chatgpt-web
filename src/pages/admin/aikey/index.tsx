@@ -19,9 +19,10 @@ import {
   ProFormText
 } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
-import { Button, Form, Progress, Space, Tag, message, Spin } from 'antd'
+import { Button, Form, Progress, Space, Tag, message, Spin, Row, Col } from 'antd'
 import { useRef, useState } from 'react'
 import moment from 'moment'
+import { CopyOutlined } from '@ant-design/icons'
 
 function AikeyPage() {
   const tableActionRef = useRef<ActionType>()
@@ -48,6 +49,21 @@ function AikeyPage() {
       title: 'KEY',
       dataIndex: 'key',
       width: "10%",
+      render: (text) => {
+        return <Row justify="space-around">
+          <Col span={20}>
+            <Tag style={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</Tag>
+          </Col>
+          <Col span={3}>
+            <Button type="link" size="small" onClick={() => {
+              navigator.clipboard.writeText(text as string)
+              message.success('Copied to clipboard')
+            }}>
+              <CopyOutlined />
+            </Button>
+          </Col>
+        </Row>
+      }
     },
     {
       title: 'HOST',
@@ -411,7 +427,7 @@ function AikeyPage() {
                 message.warning('Please enter both Key and Host first')
                 return
               }
-              
+
               setFetchingModels(true)
               try {
                 const res = await fetchAikeyModels({ key, host })
@@ -419,13 +435,13 @@ function AikeyPage() {
                   message.error(res.message || 'Failed to fetch models')
                   return
                 }
-                
+
                 const models = res.data || []
                 if (models.length === 0) {
                   message.warning('No models found for this API key')
                   return
                 }
-                
+
                 setAvailableModels(models)
                 // Auto-select all fetched models only if no models are currently selected
                 const currentModels = form.getFieldValue('models') || []
@@ -439,12 +455,12 @@ function AikeyPage() {
                 setFetchingModels(false)
               }
             }
-            
+
             // Use fetched models if available, otherwise use default models
-            const modelOptions = availableModels.length > 0 
-              ? availableModels 
+            const modelOptions = availableModels.length > 0
+              ? availableModels
               : []
-            
+
             return (
               <div>
                 <ProFormSelect
