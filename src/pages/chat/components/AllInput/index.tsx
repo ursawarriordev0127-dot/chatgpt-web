@@ -9,6 +9,7 @@ type Props = {
   onSend: (value: string) => void
   disabled?: boolean
   onStopFetch?: () => void
+  clearMessage?: () => void
 }
 
 function AllInput(props: Props) {

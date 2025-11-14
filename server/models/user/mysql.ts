@@ -46,6 +46,9 @@ export const userMysql = sequelizeExample.define(
     status: {
       type: DataTypes.NUMBER
     },
+    aikey_id: {
+      type: DataTypes.STRING
+    },
     create_time: {
       type: DataTypes.STRING
     },

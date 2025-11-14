@@ -125,6 +125,11 @@ export function postAdminAikeyCheck(params: AikeyInfo | { all: boolean }) {
   return request.post('/api/admin/aikey/check', params)
 }
 
+// Fetch available models from OpenAI API
+export function fetchAikeyModels(params: { key: string; host: string }) {
+  return request.post<Array<{ label: string; value: string; created?: number; owned_by?: string }>>('/api/admin/aikey/fetch-models', params)
+}
+
 // Get configuration data
 export function getAdminConfig() {
   return request.get<Array<ConfigInfo>>('/api/admin/config')

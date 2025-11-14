@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   invite_code VARCHAR(255) DEFAULT NULL,
   superior_id VARCHAR(255) DEFAULT NULL,
   user_agent TEXT DEFAULT NULL,
+  aikey_id VARCHAR(255) DEFAULT NULL,
   create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -508,6 +509,9 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user' AND column_name='cashback_ratio') THEN
     ALTER TABLE "user" ADD COLUMN cashback_ratio INTEGER DEFAULT NULL;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user' AND column_name='aikey_id') THEN
+    ALTER TABLE "user" ADD COLUMN aikey_id VARCHAR(255) DEFAULT NULL;
   END IF;
 END $$;
 
