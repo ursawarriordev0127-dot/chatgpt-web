@@ -227,25 +227,6 @@ function HeaderRender(props: HeaderViewProps) {
       id="root-header-v2_1"
     >
       <div className={styles.header__inner}>
-        {isMobileView && (
-          <Dropdown
-            arrow
-            placement="bottomLeft"
-            destroyPopupOnHide
-            trigger={['click']}
-            dropdownRender={() => {
-              return <MenuList mode="inline" />
-            }}
-          >
-            <button
-              type="button"
-              className={styles.mobile_menu_trigger}
-              aria-label="Navigation menu"
-            >
-              <MenuUnfoldOutlined />
-            </button>
-          </Dropdown>
-        )}
         <div className={styles.header__logoContainer} data-testid="dropdown">
           <Dropdown
             menu={{ 

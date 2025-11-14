@@ -15,8 +15,8 @@ ALTER TABLE persona ADD COLUMN description VARCHAR(255) DEFAULT NULL;
 -- If persona table has 'name' column, rename it to 'title'
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='persona' AND column_name='name') THEN
-    ALTER TABLE persona RENAME COLUMN name TO title;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user' AND column_name='aikey_id') THEN
+    ALTER TABLE "user" ADD COLUMN aikey_id VARCHAR(255) DEFAULT NULL;
   END IF;
 END $$;
 

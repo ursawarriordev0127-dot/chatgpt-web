@@ -9,6 +9,7 @@ type Props = {
   onSend: (value: string) => void
   disabled?: boolean
   onStopFetch?: () => void
+  clearMessage?: () => void
 }
 
 function AllInput(props: Props) {
@@ -57,8 +58,8 @@ function AllInput(props: Props) {
             size="large"
             placeholder="How can I help you today?"
             autoSize={{
-              minRows: 4,
-              maxRows: 6
+              minRows: 1,
+              maxRows: 1
             }}
             onPressEnter={(e) => {
               if (e.key === 'Enter' && e.keyCode === 13 && e.shiftKey) {

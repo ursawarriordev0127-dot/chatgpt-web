@@ -44,22 +44,11 @@ const configStore = create<ConfigState>()(
       website_footer: '',
       invite_introduce: '',
       random_personas: [],
-      models: [
-        {
-          label: 'GPT-4',
-          value: 'gpt-4'
-        },
-        {
-          label: 'GPT-5',
-          value: 'gpt-5'
-        },
-        {
-          label: 'GPT-5 Mini',
-          value: 'gpt-5-mini'
-        }
-      ],
+      // Models will be loaded from database via fetchConfig()
+      // Start with empty array - will be populated from API on app load
+      models: [],
       config: {
-        model: 'gpt-5',
+        model: '',
         temperature: 1,
         presence_penalty: 0,
         frequency_penalty: 0,
@@ -70,7 +59,58 @@ const configStore = create<ConfigState>()(
         set((state: ConfigState) => ({
           config: { ...state.config, ...config }
         })),
-      replaceData: (data) => set((state: ConfigState) => ({ ...state, ...data }))
+      replaceData: (data) => {
+        // Explicitly update models from database
+        const newState = { ...data }
+
+        // Priority: Use models if provided (already mapped in async.ts)
+        if (data.models && Array.isArray(data.models) && data.models.length > 0) {
+          // Ensure all models are properly formatted with string label and value
+          newState.models = data.models
+            .filter((m: any) => m && typeof m === 'object' && (m.label || m.value))
+            .map((m: any) => ({
+              label: String(m.label || m.value || ''),
+              value: String(m.value || m.label || '')
+            }))
+        } else if (data.chat_models && Array.isArray(data.chat_models) && data.chat_models.length > 0) {
+          // Map chat_models to models if models not directly provided
+          newState.models = data.chat_models
+            .filter((m: any) => m && typeof m === 'object' && (m.label || m.value))
+            .map((m: any) => ({
+              label: String(m.label || m.value || ''),
+              value: String(m.value || m.label || '')
+            }))
+        }
+        
+        // If no models from database, keep existing models (don't clear them)
+        if (!newState.models || newState.models.length === 0) {
+          const currentState = get()
+          if (currentState.models && currentState.models.length > 0) {
+            newState.models = currentState.models
+          } else {
+            newState.models = []
+          }
+        }
+        
+        // Set default model if config.model is empty and we have models
+        if (newState.models && newState.models.length > 0) {
+          const currentConfig = get().config
+          if (!currentConfig.model || !newState.models.some((m: { label: string; value: string }) => m.value === currentConfig.model)) {
+            newState.config = {
+              ...currentConfig,
+              ...(data.config || {}),
+              model: newState.models[0].value
+            }
+          } else {
+            newState.config = {
+              ...currentConfig,
+              ...(data.config || {})
+            }
+          }
+        }
+        
+        set((state: ConfigState) => ({ ...state, ...newState }))
+      }
     }),
     {
       name: 'config_storage', // name of item in the storage (must be unique)

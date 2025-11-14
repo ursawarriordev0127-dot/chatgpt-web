@@ -41,6 +41,7 @@ export interface UserInfo {
   svip_expire_time: string
   ip: string
   status: number
+  aikey_id?: string | number
   create_time: string
   update_time: string
 }

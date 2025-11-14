@@ -107,7 +107,7 @@ async function getUserCashbackAmount(
   // Handle all where conditions
   for (const [field, value] of Object.entries(whereConditions)) {
     if (field === 'create_time' && value && typeof value === 'object' && value[Op.between]) {
-      whereSql += ` AND "create_time" BETWEEN :date_start AND :date_end`
+      whereSql += ' AND "create_time" BETWEEN :date_start AND :date_end'
       replacements.date_start = value[Op.between][0]
       replacements.date_end = value[Op.between][1]
     } else if (value !== undefined && value !== null) {

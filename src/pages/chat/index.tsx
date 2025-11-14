@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import styles from './index.module.less'
 import { chatStore, configStore, userStore } from '@/store'
-import { chatAsync } from '@/store/async'
+import { chatAsync, configAsync } from '@/store/async'
 import AllInput from './components/AllInput'
 import ChatMessage from './components/ChatMessage'
 import MessageItem from './components/MessageItem'
@@ -46,7 +46,14 @@ function ChatPage() {
     if (token) {
       chatAsync.fetchChatMessages()
     }
+    // Always fetch config to ensure models are loaded
+    configAsync.fetchConfig()
   }, [token])
+  
+  // Debug: Log models when they change
+  useEffect(() => {
+    console.log('[ChatPage] Models in store:', models.length, models)
+  }, [models])
 
   const chatMessages = useMemo(() => {
     const chatList = chats.filter((c) => c.id === selectChatId)
@@ -261,7 +268,14 @@ function ChatPage() {
                 style={{ width: '100%' }}
                 defaultValue={config.model}
                 value={config.model}
-                options={models.map((m) => ({ ...m, label: 'AI Model: ' + m.label }))}
+                placeholder={models.length === 0 ? 'No models available' : 'Select AI Model'}
+                notFoundContent={models.length === 0 ? 'No models available' : null}
+                options={models.length > 0 ? models
+                  .filter((m) => m && typeof m === 'object' && m.label && m.value && typeof m.label === 'string' && typeof m.value === 'string')
+                  .map((m) => ({ 
+                    label: 'AI Model: ' + String(m.label || m.value || ''),
+                    value: String(m.value || '')
+                  })) : []}
                 onChange={(e) => {
                   changeConfig({
                     ...config,

@@ -22,7 +22,8 @@ router.post('/user', async function (req, res, next) {
     password,
     integral = 0,
     vip_expire_time = '2020-02-02 22:02:02',
-    svip_expire_time = '2020-02-02 22:02:02'
+    svip_expire_time = '2020-02-02 22:02:02',
+    aikey_id
   } = req.body
 
   if (!account || !password) {
@@ -48,7 +49,8 @@ router.post('/user', async function (req, res, next) {
       svip_expire_time,
       invite_code: generateCrc.crc32(`${id}_${Date.now()}`),
       user_agent,
-      superior_id
+      superior_id,
+      aikey_id
     })
   )
 
@@ -86,7 +88,8 @@ router.put('/user', async function (req, res, next) {
     role,
     vip_expire_time,
     svip_expire_time,
-	cashback_ratio
+	cashback_ratio,
+    aikey_id
   } = req.body
   if (!id) {
     res.json(httpBody(-1, 'Missing required parameters'))
@@ -105,7 +108,8 @@ router.put('/user', async function (req, res, next) {
       role,
       vip_expire_time,
       svip_expire_time,
-	  cashback_ratio
+	  cashback_ratio,
+      aikey_id
     })
   )
   res.json(httpBody(0, editRes))

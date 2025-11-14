@@ -46,7 +46,15 @@ export interface ResponseConfigData {
   website_footer: string
   invite_introduce: string
   random_personas: PersonaInfo[]
-  models: Array<{
+  chat_models?: Array<{
+    label: string
+    value: string
+  }>
+  draw_models?: Array<{
+    label: string
+    value: string
+  }>
+  models?: Array<{
     label: string
     value: string
   }>

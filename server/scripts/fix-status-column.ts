@@ -22,11 +22,11 @@ async function fixStatusColumn() {
       console.log('Status column is VARCHAR, converting to INTEGER...')
       
       // First, update any 'pass' values to 1
-      await sequelizeExample.query(`UPDATE message SET status = '1' WHERE status = 'pass'`)
-      await sequelizeExample.query(`UPDATE message SET status = '0' WHERE status = 'fail'`)
+      await sequelizeExample.query('UPDATE message SET status = \'1\' WHERE status = \'pass\'')
+      await sequelizeExample.query('UPDATE message SET status = \'0\' WHERE status = \'fail\'')
       
       // Drop default value first
-      await sequelizeExample.query(`ALTER TABLE message ALTER COLUMN status DROP DEFAULT`)
+      await sequelizeExample.query('ALTER TABLE message ALTER COLUMN status DROP DEFAULT')
       
       // Change column type to INTEGER
       await sequelizeExample.query(`
@@ -40,7 +40,7 @@ async function fixStatusColumn() {
       `)
       
       // Set default value back
-      await sequelizeExample.query(`ALTER TABLE message ALTER COLUMN status SET DEFAULT 1`)
+      await sequelizeExample.query('ALTER TABLE message ALTER COLUMN status SET DEFAULT 1')
       
       console.log('✅ Successfully converted status column to INTEGER')
     } else {

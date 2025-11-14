@@ -62,7 +62,7 @@ async function fixTurnoverValueColumn() {
       `)
       const defaultValue = (defaultCheck as any[])[0]?.column_default
       
-      if (!defaultValue || !defaultValue.includes("'0'")) {
+      if (!defaultValue || !defaultValue.includes('\'0\'')) {
         await sequelizeExample.query(`
           ALTER TABLE turnover 
           ALTER COLUMN value SET DEFAULT '0';

@@ -28,33 +28,12 @@ import {
   WalletFilled
 } from '@ant-design/icons'
 
-const web = [
-  {
-    path: '/',
-    name: 'Chat',
-    icon: <CommentOutlined />,
-    message: 'Chat with intelligent AI'
-  },
-  {
-    path: '/user',
-    name: 'Invite',
-    icon: <UsergroupAddOutlined />,
-    message: 'Account balance and recharge package records'
-  },
-  {
-    path: 'https://github.com/79E/ChatGpt-Web',
-    name: 'Project URL',
-    icon: <GithubOutlined />,
-    message: 'Free open source commercializable AI Web project'
-  }
-]
-
 const admin = {
   path: '/',
   routes: [
     {
       path: '/admin',
-      name: 'Welcome',
+      name: 'Dashboard',
       icon: <SmileFilled />
     },
     {
@@ -173,6 +152,5 @@ const admin = {
 }
 
 export default {
-  web,
   admin
 }

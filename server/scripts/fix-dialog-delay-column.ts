@@ -53,14 +53,14 @@ async function fixDialogDelayColumn() {
       
       // Double-check: try to query the column to make sure it's accessible
       try {
-        await sequelizeExample.query(`SELECT delay FROM dialog LIMIT 1;`)
+        await sequelizeExample.query('SELECT delay FROM dialog LIMIT 1;')
         console.log('Verified delay column is accessible')
       } catch (error: any) {
         console.log('Warning: delay column exists but may not be accessible, attempting to recreate...')
         // Try to drop and recreate if there's an issue
         try {
-          await sequelizeExample.query(`ALTER TABLE dialog DROP COLUMN IF EXISTS delay;`)
-          await sequelizeExample.query(`ALTER TABLE dialog ADD COLUMN delay INTEGER NOT NULL DEFAULT 0;`)
+          await sequelizeExample.query('ALTER TABLE dialog DROP COLUMN IF EXISTS delay;')
+          await sequelizeExample.query('ALTER TABLE dialog ADD COLUMN delay INTEGER NOT NULL DEFAULT 0;')
           console.log('Recreated delay column successfully')
         } catch (recreateError) {
           console.error('Could not recreate delay column:', recreateError)

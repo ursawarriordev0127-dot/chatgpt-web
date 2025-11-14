@@ -1,4 +1,3 @@
-/* eslint-disable no-async-promise-executor */
 export function copyToClipboard(text: string) {
   return new Promise(async (resolve, reject) => {
     if (navigator.clipboard) {

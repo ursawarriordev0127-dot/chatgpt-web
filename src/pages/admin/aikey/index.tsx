@@ -3,7 +3,8 @@ import {
   delAdminAikey,
   putAdminAikey,
   postAdminAikey,
-  postAdminAikeyCheck
+  postAdminAikeyCheck,
+  fetchAikeyModels
 } from '@/request/adminApi'
 import { AikeyInfo } from '@/types/admin'
 import {
@@ -18,77 +19,24 @@ import {
   ProFormText
 } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
-import { Button, Form, Progress, Space, Tag, message } from 'antd'
-import { useRef, useState } from 'react'
+import { Button, Form, Progress, Space, Tag, message, Spin, Row, Col } from 'antd'
+import { useRef, useState, useEffect } from 'react'
 import moment from 'moment'
-
-const getModels = (type: string) => {
-  if (type === 'stability') {
-    return [
-      {
-        label: 'stable-diffusion-v1-5',
-        value: 'stable-diffusion-v1-5'
-      }
-    ]
-  }
-  return [
-    {
-      label: 'OpenAI (dall-e) Drawing',
-      value: 'dall-e'
-    },
-    {
-      label: 'gpt-3.5-turbo',
-      value: 'gpt-3.5-turbo'
-    },
-    {
-      label: 'gpt-3.5-turbo-16k',
-      value: 'gpt-3.5-turbo-16k'
-    },
-    {
-      label: 'gpt-3.5-turbo-0613',
-      value: 'gpt-3.5-turbo-0613'
-    },
-    {
-      label: 'gpt-3.5-turbo-16k-0613',
-      value: 'gpt-3.5-turbo-16k-0613'
-    },
-    {
-      label: 'text-davinci-003',
-      value: 'text-davinci-003'
-    },
-    {
-      label: 'code-davinci-002',
-      value: 'code-davinci-002'
-    },
-    {
-      label: 'gpt-4',
-      value: 'gpt-4'
-    },
-    {
-      label: 'gpt-4-0613',
-      value: 'gpt-4-0613'
-    },
-    {
-      label: 'gpt-4-32k',
-      value: 'gpt-4-32k'
-    },
-    {
-      label: 'gpt-4-32k-0613',
-      value: 'gpt-4-32k-0613'
-    },
-    {
-      label: 'gpt-5',
-      value: 'gpt-5'
-    },
-    {
-      label: 'gpt-5-mini',
-      value: 'gpt-5-mini'
-    }
-  ]
-}
+import { CopyOutlined } from '@ant-design/icons'
+import useMobile from '@/hooks/useMobile'
 
 function AikeyPage() {
+  const isMobile = useMobile()
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920)
   const tableActionRef = useRef<ActionType>()
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const [form] = Form.useForm<
     AikeyInfo & {
       models: Array<string>
@@ -105,21 +53,64 @@ function AikeyPage() {
     {
       title: 'ID',
       dataIndex: 'id',
-      width: "3%",
-      fixed: 'left'
+      width: isMobile ? 60 : '3%',
+      fixed: isMobile ? 'left' : undefined,
+      hideInTable: windowWidth < 576,
+      ellipsis: true
     },
     {
       title: 'KEY',
       dataIndex: 'key',
-      width: "10%",
+      width: isMobile ? 150 : '10%',
+      ellipsis: true,
+      render: (text) => {
+        const keyValue = String(text || '')
+        const handleCopy = async () => {
+          try {
+            await navigator.clipboard.writeText(keyValue)
+            message.success('Copied to clipboard')
+          } catch (error) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea')
+            textArea.value = keyValue
+            textArea.style.position = 'fixed'
+            textArea.style.opacity = '0'
+            document.body.appendChild(textArea)
+            textArea.select()
+            try {
+              document.execCommand('copy')
+              message.success('Copied to clipboard')
+            } catch (err) {
+              message.error('Failed to copy')
+            }
+            document.body.removeChild(textArea)
+          }
+        }
+        return (
+          <Row justify="space-around" gutter={[8, 0]}>
+            <Col span={isMobile ? 18 : 20} style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+              {text}
+            </Col>
+            <Col span={isMobile ? 6 : 3}>
+              <CopyOutlined 
+                onClick={handleCopy}
+                style={{ cursor: 'pointer', color: '#1890ff', fontSize: isMobile ? 16 : 14 }}
+                title="Copy to clipboard"
+              />
+            </Col>
+          </Row>
+        )
+      }
     },
     {
       title: 'HOST',
       dataIndex: 'host',
-      width: "10%",
+      width: isMobile ? 120 : '10%',
+      ellipsis: true,
+      hideInTable: windowWidth < 768,
       render: (_, data) => {
         return (
-          <a href={data.host} target="_blank" rel="noreferrer">
+          <a href={data.host} target="_blank" rel="noreferrer" style={{ fontSize: isMobile ? 12 : 14 }}>
             {data.host}
           </a>
         )
@@ -128,25 +119,30 @@ function AikeyPage() {
     {
       title: 'Available Models',
       dataIndex: 'models',
-      width: "10%",
+      width: isMobile ? 100 : '10%',
+      hideInTable: windowWidth < 992,
       render: (_, data) => {
         if (!data.models) return '-'
-        const modelTag = data.models.split(',').map((model) => {
-          return <Tag key={model}>{model}</Tag>
+        const models = data.models.split(',')
+        const displayModels = isMobile ? models.slice(0, 2) : models
+        const modelTag = displayModels.map((model) => {
+          return <Tag key={model} style={{ fontSize: isMobile ? 11 : 12, margin: '2px' }}>{model}</Tag>
         })
-        return <>{modelTag}</>
+        return <>{modelTag}{models.length > 2 && isMobile && <Tag>+{models.length - 2}</Tag>}</>
       }
     },
     {
       title: 'AI Type',
       dataIndex: 'type',
-      width: "5%",
-      render: (_, data) => <Tag>{data.type}</Tag>
+      width: isMobile ? 80 : '5%',
+      render: (_, data) => <Tag style={{ fontSize: isMobile ? 11 : 12 }}>{data.type}</Tag>
     },
     {
       title: 'Remarks',
       dataIndex: 'remarks',
-      width: "8%",
+      width: isMobile ? 100 : '8%',
+      ellipsis: true,
+      hideInTable: windowWidth < 768
     },
     // {
     //   title: 'Status',
@@ -164,28 +160,40 @@ function AikeyPage() {
     {
       title: 'Created At',
       dataIndex: 'create_time',
-      width: "8%",
+      width: isMobile ? 120 : '8%',
+      hideInTable: windowWidth < 992,
       render: (_, data) => {
-        return <div>{moment(data.create_time).format('YYYY-MM-DD HH:mm')}</div>
+        return (
+<div style={{ fontSize: isMobile ? 11 : 14 }}>
+          {isMobile ? moment(data.create_time).format('MM-DD HH:mm') : moment(data.create_time).format('YYYY-MM-DD HH:mm')}
+</div>
+)
       }
     },
     {
       title: 'Updated At',
       dataIndex: 'update_time',
-      width: "8%",
+      width: isMobile ? 120 : '8%',
+      hideInTable: windowWidth < 1200,
       render: (_, data) => {
-        return <div>{moment(data.update_time).format('YYYY-MM-DD HH:mm')}</div>
+        return (
+<div style={{ fontSize: isMobile ? 11 : 14 }}>
+          {isMobile ? moment(data.update_time).format('MM-DD HH:mm') : moment(data.update_time).format('YYYY-MM-DD HH:mm')}
+</div>
+)
       }
     },
     {
       title: 'Actions',
-      width: "7%",
+      width: isMobile ? 100 : '7%',
       valueType: 'option',
-      fixed: 'right',
+      fixed: isMobile ? 'right' : undefined,
       render: (_, data) => [
         <Button
           key="edit"
           type="link"
+          size={isMobile ? 'small' : 'middle'}
+          style={{ padding: isMobile ? '4px 8px' : undefined }}
           onClick={() => {
             setEditInfoModal(() => {
               const models = data.models ? data.models.split(',') : []
@@ -206,17 +214,25 @@ function AikeyPage() {
           key="del"
           type="text"
           danger
-          onClick={() => {
-            delAdminAikey({
-              id: data.id
-            }).then((res) => {
-              if (res.code) return
+          size={isMobile ? 'small' : 'middle'}
+          style={{ padding: isMobile ? '4px 8px' : undefined }}
+          onClick={async () => {
+            try {
+              const res = await delAdminAikey({
+                id: data.id
+              })
+              if (res.code) {
+                message.error(res.message || 'Delete failed')
+                return
+              }
               message.success('Deleted successfully')
               tableActionRef.current?.reload()
-            })
+            } catch (error: any) {
+              message.error(error.message || 'Delete failed')
+            }
           }}
         >
-          Delete
+          {isMobile ? 'Del' : 'Delete'}
         </Button>
       ]
     }
@@ -234,6 +250,8 @@ function AikeyPage() {
   }
   const [inputHost, setInputHost] = useState<Array<{ label: string; value: string }>>([])
   const [hostOptions, setHostOptions] = useState<Array<{ label: string; value: string }>>([])
+  const [availableModels, setAvailableModels] = useState<Array<{ label: string; value: string }>>([])
+  const [fetchingModels, setFetchingModels] = useState(false)
 
   return (
     <div>
@@ -241,8 +259,9 @@ function AikeyPage() {
         actionRef={tableActionRef}
         columns={columns}
         scroll={{
-          x: 1400
+          x: isMobile ? 800 : 1400
         }}
+        size={isMobile ? 'small' : 'middle'}
         request={async (params, sorter, filter) => {
           // Form search items will be passed from params to the backend API.
           const res = await getAdminAikeys({
@@ -310,6 +329,7 @@ function AikeyPage() {
         onOpenChange={(visible) => {
           if (!visible) {
             form.resetFields()
+            setAvailableModels([]) // Clear fetched models when modal closes
           }
           setEditInfoModal((info) => {
             return {
@@ -327,9 +347,10 @@ function AikeyPage() {
               id: edidInfoModal.info?.id
             })
             if (res.code) {
-              message.error('Edit failed')
+              message.error(res.message || 'Edit failed')
               return false
             }
+            message.success('Updated successfully')
             tableActionRef.current?.reload?.()
           } else {
             const res = await postAdminAikey({
@@ -337,18 +358,20 @@ function AikeyPage() {
               models
             })
             if (res.code) {
-              message.error('Add failed')
+              message.error(res.message || 'Add failed')
               return false
             }
+            message.success('Created successfully')
             tableActionRef.current?.reloadAndRest?.()
-            message.success('Submitted successfully')
           }
           return true
         }}
-        size="large"
+        size={isMobile ? 'small' : 'large'}
         modalProps={{
           cancelText: 'Cancel',
-          okText: 'Submit'
+          okText: 'Submit',
+          width: isMobile ? '95%' : undefined,
+          style: isMobile ? { top: 20 } : undefined
         }}
       >
         <ProFormGroup size="large">
@@ -458,24 +481,78 @@ function AikeyPage() {
           placeholder="Key"
           rules={[{ required: true, message: 'Please enter Key' }]}
         />
-        <ProFormDependency name={['type']}>
-          {({ type }) => {
+        <ProFormDependency name={['type', 'key', 'host']}>
+          {({ type, key, host }) => {
+            const handleFetchModels = async () => {
+              if (!key || !host) {
+                message.warning('Please enter both Key and Host first')
+                return
+              }
+              
+              setFetchingModels(true)
+              try {
+                const res = await fetchAikeyModels({ key, host })
+                if (res.code) {
+                  message.error(res.message || 'Failed to fetch models')
+                  return
+                }
+                
+                const models = res.data || []
+                if (models.length === 0) {
+                  message.warning('No models found for this API key')
+                  return
+                }
+                
+                setAvailableModels(models)
+                // Auto-select all fetched models only if no models are currently selected
+                const currentModels = form.getFieldValue('models') || []
+                if (currentModels.length === 0) {
+                  form.setFieldsValue({ models: models.map(m => m.value) })
+                }
+                message.success(`Found ${models.length} available model(s)`)
+              } catch (error: any) {
+                message.error(error.message || 'Failed to fetch models')
+              } finally {
+                setFetchingModels(false)
+              }
+            }
+            
+            // Use fetched models if available, otherwise use default models
+            const modelOptions = availableModels.length > 0 
+              ? availableModels 
+              : []
+            
             return (
-              <ProFormSelect
-                name="models"
-                label="Applicable Models"
-                options={getModels(type)}
-                fieldProps={{
-                  mode: 'multiple'
-                }}
-                placeholder="Please select AI models available for this Token"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please select AI models available for this Token!'
+              <div>
+                <ProFormSelect
+                  name="models"
+                  label="Applicable Models"
+                  options={modelOptions}
+                  fieldProps={{
+                    mode: 'multiple'
+                  }}
+                  placeholder="Please select AI models available for this Token"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select AI models available for this Token!'
+                    }
+                  ]}
+                  extra={
+                    type === 'openai' && key && host ? (
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={handleFetchModels}
+                        loading={fetchingModels}
+                        style={{ padding: 0, marginTop: 4 }}
+                      >
+                        {fetchingModels ? 'Fetching models...' : '🔍 Fetch available models from API'}
+                      </Button>
+                    ) : null
                   }
-                ]}
-              />
+                />
+              </div>
             )
           }}
         </ProFormDependency>

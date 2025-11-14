@@ -54,21 +54,20 @@
 
 .chatMessage{
     display: flex;
-    margin-top: 12px;
+    margin-top: 16px;
+    opacity: 0;
+    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     
-    // Only animate on initial mount, not on updates
-    &:not([data-animated]) {
-        animation: fadeInUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-        animation-fill-mode: both;
-        
-        // Reduced stagger animation delay for faster display
-        &:nth-child(1) { animation-delay: 0s; }
-        &:nth-child(2) { animation-delay: 0.01s; }
-        &:nth-child(3) { animation-delay: 0.02s; }
-        &:nth-child(4) { animation-delay: 0.03s; }
-        &:nth-child(5) { animation-delay: 0.04s; }
-        &:nth-child(n+6) { animation-delay: 0.05s; }
-    }
+    // Stagger animation for smooth entry
+    &:nth-child(1) { animation-delay: 0.05s; }
+    &:nth-child(2) { animation-delay: 0.1s; }
+    &:nth-child(3) { animation-delay: 0.15s; }
+    &:nth-child(4) { animation-delay: 0.2s; }
+    &:nth-child(5) { animation-delay: 0.25s; }
+    &:nth-child(6) { animation-delay: 0.3s; }
+    &:nth-child(7) { animation-delay: 0.35s; }
+    &:nth-child(8) { animation-delay: 0.4s; }
+    &:nth-child(n+9) { animation-delay: 0.45s; }
     
     &_avatarCard{
         display: flex;
@@ -266,37 +265,47 @@
         
         .left{
             margin-right: auto;
-            background: linear-gradient(135deg, #f4f6f8 0%, #f0f2f5 100%);
-            border-top-left-radius: 2px;
-            border-top-right-radius: 18px;
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 18px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 4px;
+            border-top-right-radius: 20px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
             color: #1a1a1a;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             
             // No animation to prevent interference with streaming
             animation: none !important;
             
             &:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+                transform: translateY(-2px);
+                border-color: rgba(22, 119, 255, 0.2);
             }
         }
         
         .right{
             margin-left: auto;
-            background: linear-gradient(135deg, #cdeeff 0%, #b8e5ff 100%);
-            border-top-left-radius: 18px;
-            border-top-right-radius: 2px;
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 18px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            background: linear-gradient(135deg, rgba(22, 119, 255, 0.1) 0%, rgba(22, 119, 255, 0.15) 100%);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 4px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            border: 1px solid rgba(22, 119, 255, 0.2);
+            box-shadow: 0 4px 16px rgba(22, 119, 255, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
             color: #1a1a1a;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             
             // No animation to prevent interference with streaming
             animation: none !important;
             
             &:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 6px 24px rgba(22, 119, 255, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+                transform: translateY(-2px);
+                border-color: rgba(22, 119, 255, 0.3);
             }
         }
     }

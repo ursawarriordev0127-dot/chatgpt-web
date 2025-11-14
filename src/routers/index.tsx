@@ -21,6 +21,7 @@ const ResultPage = React.lazy(() => import('@/pages/result'))
 const Page404 = React.lazy(() => import('@/pages/404'))
 
 import AdminPage from '@/pages/admin'
+import AdminDashboardPage from '@/pages/admin/dashboard'
 import AdminCarmiPage from '@/pages/admin/carmi'
 import AdminUserPage from '@/pages/admin/user'
 import AdminTurnoverPage from '@/pages/admin/turnover'
@@ -141,6 +142,17 @@ export const adminRouter: RouteOptions[] = [
     element: <AdminPage />,
     children: [
       {
+        id: 'AdminDashboardPage',
+        path: '/admin',
+        element: <AdminDashboardPage />,
+        index: true,
+        configure: {
+          title: 'Dashboard',
+          verifToken: true,
+          role: ['administrator']
+        }
+      },
+      {
         id: 'AdminCarmiPage',
         path: '/admin/carmi',
         element: <AdminCarmiPage />,
@@ -155,7 +167,7 @@ export const adminRouter: RouteOptions[] = [
         id: 'AdminUserPage',
         path: '/admin/user',
         element: <AdminUserPage />,
-        index: true,
+        index: false,
         configure: {
           title: 'User Management',
           verifToken: true,

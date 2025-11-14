@@ -87,9 +87,9 @@ router.post('/chat/completion', async (req: ExpressRequest, res, next) => {
   const aikeyInfo = await aikeyModel.getOneAikey({ model: options.model })
   if (!aikeyInfo || !aikeyInfo.id) {
     console.error(`[Chat Error] No API key found for model: ${options.model}`)
-    console.error(`[Chat Error] Requested model:`, options.model)
+    console.error('[Chat Error] Requested model:', options.model)
     const allKeys = await aikeyModel.getAikeys({ page: 0, page_size: 10 })
-    console.error(`[Chat Error] Available keys in database:`, allKeys.rows.map((row: any) => ({
+    console.error('[Chat Error] Available keys in database:', allKeys.rows.map((row: any) => ({
       id: row.id,
       type: row.type,
       models: row.models,
@@ -237,7 +237,7 @@ router.post('/chat/completions', async (req: ExpressRequest, res, next) => {
       delete options.frequency_penalty
     }
     
-    console.log(`[GPT-5 Request] Cleaned params for API call:`, {
+    console.log('[GPT-5 Request] Cleaned params for API call:', {
       model: options.model,
       max_completion_tokens: options.max_completion_tokens,
       temperature: options.temperature,
@@ -340,9 +340,9 @@ router.post('/chat/completions', async (req: ExpressRequest, res, next) => {
   const aikeyInfo = await aikeyModel.getOneAikey({ model: options.model })
   if (!aikeyInfo || !aikeyInfo.id) {
     console.error(`[Chat Error] No API key found for model: ${options.model}`)
-    console.error(`[Chat Error] Requested model:`, options.model)
+    console.error('[Chat Error] Requested model:', options.model)
     const allKeys = await aikeyModel.getAikeys({ page: 0, page_size: 10 })
-    console.error(`[Chat Error] Available keys in database:`, allKeys.rows.map((row: any) => ({
+    console.error('[Chat Error] Available keys in database:', allKeys.rows.map((row: any) => ({
       id: row.id,
       type: row.type,
       models: row.models,

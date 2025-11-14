@@ -30,13 +30,13 @@ async function verifyDialogDelay() {
       
       // Test query
       try {
-        const [test] = await sequelizeExample.query(`SELECT delay FROM dialog LIMIT 1;`)
+        const [test] = await sequelizeExample.query('SELECT delay FROM dialog LIMIT 1;')
         console.log('\n✅ Column is accessible, test query successful')
       } catch (error: any) {
         console.log('\n❌ Column exists but query failed:', error.message)
         console.log('Attempting to fix...')
-        await sequelizeExample.query(`ALTER TABLE dialog DROP COLUMN IF EXISTS delay;`)
-        await sequelizeExample.query(`ALTER TABLE dialog ADD COLUMN delay INTEGER NOT NULL DEFAULT 0;`)
+        await sequelizeExample.query('ALTER TABLE dialog DROP COLUMN IF EXISTS delay;')
+        await sequelizeExample.query('ALTER TABLE dialog ADD COLUMN delay INTEGER NOT NULL DEFAULT 0;')
         console.log('✅ Recreated delay column')
       }
     }

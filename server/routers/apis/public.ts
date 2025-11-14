@@ -22,7 +22,7 @@ import { ExpressRequest } from '../../type'
 const router = express.Router()
 
 // Get configuration information
-router.get('/config', async (req, res, next) => {
+router.get('/config', async (req: ExpressRequest, res, next) => {
     const shop_introduce = await configModel.getConfigValue('shop_introduce')
     const user_introduce = await configModel.getConfigValue('user_introduce')
     const invite_introduce = await configModel.getConfigValue('invite_introduce')
@@ -39,7 +39,32 @@ router.get('/config', async (req, res, next) => {
         return a.sort - b.sort
     })
 
-    const models = await aikeyModel.getAiKeyModels({})
+    // If user is logged in, get user-specific models, otherwise get all models
+    let models
+    if (req.user_id) {
+        try {
+            models = await aikeyModel.getUserAiKeyModels(req.user_id, {})
+            console.log('------------------------->', models);
+
+            // If user-specific models are empty, fallback to general models
+            if (!models.chat_models || models.chat_models.length === 0) {
+                console.log('[Config] User-specific models empty, falling back to general models')
+                models = await aikeyModel.getAiKeyModels({})
+            }
+        } catch (error) {
+            console.error('[Config] Error fetching user-specific models:', error)
+            // Fallback to general models if user-specific query fails
+            models = await aikeyModel.getAiKeyModels({})
+        }
+    } else {
+        models = await aikeyModel.getAiKeyModels({})
+    }
+
+    console.log('[Config] Returning models:', {
+        chat_models_count: models.chat_models?.length || 0,
+        draw_models_count: models.draw_models?.length || 0,
+        chat_models: models.chat_models?.map((m: any) => m.value).slice(0, 5) || []
+    })
 
     const random_personas = await personaModel.getRandomPersonas()
     res.json(
@@ -76,7 +101,7 @@ router.get('/send_sms', async (req, res, next) => {
 
         // Development mode: Skip rate limiting or make it very lenient
         const isDevelopment = process.env.NODE_ENV !== 'production'
-        
+
         // Generate code immediately
         const code = await generateCode()
         console.log(`[VERIFY CODE] Generated code: ${code} for ${source}`)
@@ -84,7 +109,7 @@ router.get('/send_sms', async (req, res, next) => {
         // In development mode, skip all slow operations and return immediately
         if (isDevelopment) {
             console.log(`[DEV MODE] Rate limiting skipped for IP: ${ip}`)
-            
+
             // Save code to Redis with timeout
             try {
                 await Promise.race([
@@ -96,11 +121,11 @@ router.get('/send_sms', async (req, res, next) => {
                 console.error('[VERIFY CODE] Redis save error (non-critical in dev):', redisError)
                 // Continue anyway in dev mode
             }
-            
+
             // Return immediately with code (include code in response for development)
-            console.log(`[DEV MODE] ==========================================`)
+            console.log('[DEV MODE] ==========================================')
             console.log(`[DEV MODE] VERIFICATION CODE FOR ${source}: ${code}`)
-            console.log(`[DEV MODE] ==========================================`)
+            console.log('[DEV MODE] ==========================================')
             res.json({
                 code: 0,
                 data: { verification_code: code },
@@ -108,7 +133,7 @@ router.get('/send_sms', async (req, res, next) => {
             })
             return
         }
-        
+
         // Production mode: Full flow with rate limiting
         const maxRequests = 6
         const limitAny = async (value: string, prefix = 'code', number = maxRequests) => {
@@ -146,7 +171,7 @@ router.get('/send_sms', async (req, res, next) => {
 
         const phoneRegex = /^1[3456789]\d{9}$/
         const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
-        
+
         const isPhone = phoneRegex.test(source)
         const isEmail = emailRegex.test(source)
 
@@ -193,7 +218,7 @@ router.get('/send_sms', async (req, res, next) => {
                 // SMS config parse error - development mode: log code and continue
                 if (isDevelopment) {
                     console.log(`[DEV MODE] Verification code for ${source}: ${code}`)
-                    console.log(`[DEV MODE] SMS config error:`, error)
+                    console.log('[DEV MODE] SMS config error:', error)
                     result = httpBody(0, 'Code generated (SMS config error, check console)')
                 } else {
                     res.json(httpBody(-1, 'SMS service configuration error'))
@@ -250,7 +275,7 @@ router.get('/send_sms', async (req, res, next) => {
                 // Email config parse error - development mode: log code and continue
                 if (isDevelopment) {
                     console.log(`[DEV MODE] Verification code for ${source}: ${code}`)
-                    console.log(`[DEV MODE] Email config error:`, error)
+                    console.log('[DEV MODE] Email config error:', error)
                     result = httpBody(0, 'Code generated (Email config error, check console)')
                 } else {
                     res.json(httpBody(-1, 'Email service configuration error'))
@@ -289,12 +314,12 @@ router.get('/send_sms', async (req, res, next) => {
                 return
             }
         }
-        
+
         // In development, always return success and log the code
         if (isDevelopment) {
-            console.log(`[DEV MODE] ==========================================`)
+            console.log('[DEV MODE] ==========================================')
             console.log(`[DEV MODE] VERIFICATION CODE FOR ${source}: ${code}`)
-            console.log(`[DEV MODE] ==========================================`)
+            console.log('[DEV MODE] ==========================================')
             res.json(httpBody(0, `Code generated successfully. Check server console for code: ${code}`))
         } else {
             res.json(httpBody(0, 'Sent successfully'))
@@ -309,24 +334,24 @@ import upload from '../../helpers/upload'
 import multer from 'multer'
 const multerStorage = multer()
 router.post('/upload', multerStorage.single('file'), async (req: ExpressRequest, res, next) => {
-	const user_id = req?.user_id
+    const user_id = req?.user_id
     if (!user_id) {
         res.status(500).json(httpBody(-1, 'Please login again and retry'))
         return
     }
 
-	const file = req.file
-    if(!file){
+    const file = req.file
+    if (!file) {
         res.json(httpBody(401, [], 'Missing required file (file)'))
         return
     }
-	const cloud_storage = await configModel.getConfigValue('cloud_storage')
-	const json = cloud_storage ? JSON.parse(cloud_storage) : {}
+    const cloud_storage = await configModel.getConfigValue('cloud_storage')
+    const json = cloud_storage ? JSON.parse(cloud_storage) : {}
     const data = await upload(file, {
         host: req.get('host'),
-		...json
+        ...json
     }, { user_id })
-	res.json(data)
+    res.json(data)
 })
 
 export default router

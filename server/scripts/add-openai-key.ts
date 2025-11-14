@@ -51,7 +51,7 @@ async function addOpenAIKey() {
     console.log('\nConfiguration:')
     console.log(`Host: ${host}`)
     console.log(`Models: ${models}`)
-    console.log(`Type: openai-chat`)
+    console.log('Type: openai-chat')
     console.log('\n✨ Your ChatGPT application should now work!')
     
     process.exit(0)

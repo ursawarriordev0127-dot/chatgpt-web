@@ -80,9 +80,9 @@ async function runMigration() {
     if (Array.isArray(nameExists) && nameExists.length > 0 && 
         Array.isArray(titleExists) && titleExists.length === 0) {
       await sequelizeExample.query('ALTER TABLE persona RENAME COLUMN name TO title')
-      console.log(`✅ Renamed 'name' column to 'title' in persona table`)
+      console.log('✅ Renamed \'name\' column to \'title\' in persona table')
     } else if (Array.isArray(titleExists) && titleExists.length > 0) {
-      console.log(`⏭️  Column 'title' already exists in persona table`)
+      console.log('⏭️  Column \'title\' already exists in persona table')
     }
 
     console.log('\n✨ Migration completed successfully!')
