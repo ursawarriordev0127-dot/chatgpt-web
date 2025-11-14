@@ -64,8 +64,17 @@ function Global(props: Props) {
       const id = chats[0].id
       changeSelectChatId(id)
     }
+	// Always fetch config to get latest models from database
 	configAsync.fetchConfig()
   }, [])
+  
+  // Refresh models when token changes (user logs in/out)
+  useEffect(() => {
+    if (token) {
+      // Refresh config to get latest models when user logs in
+      configAsync.fetchConfig()
+    }
+  }, [token])
 
   useLayoutEffect(()=>{
 	onOpenNotifications();

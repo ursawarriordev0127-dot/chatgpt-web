@@ -1,6 +1,6 @@
 import UserHead from '@/components/UserHead'
-import { delAdminUsers, getAdminUsers, postAdminUser, putAdminUsers } from '@/request/adminApi'
-import { UserInfo } from '@/types/admin'
+import { delAdminUsers, getAdminUsers, postAdminUser, putAdminUsers, getAdminAikeys } from '@/request/adminApi'
+import { UserInfo, AikeyInfo } from '@/types/admin'
 import {
   ActionType,
   ModalForm,
@@ -10,16 +10,19 @@ import {
   ProFormDigit,
   ProFormGroup,
   ProFormRadio,
+  ProFormSelect,
   ProFormText
 } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
 import { Tag, Button, Space, message, Form } from 'antd'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import moment from 'moment';
 
 function UserPage() {
   const tableActionRef = useRef<ActionType>()
   const [form] = Form.useForm<UserInfo>()
+  const [aikeyOptions, setAikeyOptions] = useState<Array<{ label: string; value: string | number }>>([])
+  const [aikeyMap, setAikeyMap] = useState<Map<string | number, AikeyInfo>>(new Map())
   const [edidInfoModal, setEditInfoModal] = useState<{
     open: boolean
     info: UserInfo | undefined
@@ -27,6 +30,35 @@ function UserPage() {
     open: false,
     info: undefined
   })
+  
+  // Fetch API keys for the select field
+  const fetchAikeys = async () => {
+    try {
+      const res = await getAdminAikeys({ page: 1, page_size: 1000 })
+      if (!res.code && res.data?.rows) {
+        const options = res.data.rows.map((aikey: AikeyInfo) => ({
+          label: `${aikey.remarks || 'API Key'} (${aikey.host}) - ${aikey.models || 'No models'}`,
+          value: aikey.id
+        }))
+        setAikeyOptions(options)
+        
+        // Create a map for quick lookup in table rendering
+        const map = new Map<string | number, AikeyInfo>()
+        res.data.rows.forEach((aikey: AikeyInfo) => {
+          map.set(aikey.id, aikey)
+        })
+        setAikeyMap(map)
+      }
+    } catch (error) {
+      console.error('Failed to fetch API keys:', error)
+    }
+  }
+  
+  // Load API keys on component mount
+  useEffect(() => {
+    fetchAikeys()
+  }, [])
+  
   const columns: ProColumns<UserInfo>[] = [
     {
       title: 'ID',
@@ -85,6 +117,25 @@ function UserPage() {
       }
     },
     {
+      title: 'API Key',
+      dataIndex: 'aikey_id',
+      width: 200,
+      render: (_, data) => {
+        if (!data.aikey_id) return <Tag>-</Tag>
+        // Find the API key from map
+        const aikey = aikeyMap.get(data.aikey_id)
+        if (aikey) {
+          const displayText = aikey.remarks || `Key ${aikey.id}`
+          return (
+            <Tag color="blue" title={`${displayText} - ${aikey.host} (${aikey.models || 'No models'})`}>
+              {displayText}
+            </Tag>
+          )
+        }
+        return <Tag color="blue">ID: {data.aikey_id}</Tag>
+      }
+    },
+    {
       title: 'Created At',
       dataIndex: 'create_time',
       width: "10%",
@@ -127,14 +178,20 @@ function UserPage() {
           key="del"
           type="text"
           danger
-          onClick={() => {
-            delAdminUsers({
-              id: data.id
-            }).then((res) => {
-              if (res.code) return
+          onClick={async () => {
+            try {
+              const res = await delAdminUsers({
+                id: data.id
+              })
+              if (res.code) {
+                message.error(res.message || 'Delete failed')
+                return
+              }
               message.success('Deleted successfully')
               tableActionRef.current?.reloadAndRest?.()
-            })
+            } catch (error: any) {
+              message.error(error.message || 'Delete failed')
+            }
           }}
         >
           Delete
@@ -156,6 +213,10 @@ function UserPage() {
             page: params.current || 1,
             page_size: params.pageSize || 10
           })
+          // Fetch API keys when table loads
+          if (aikeyOptions.length === 0) {
+            fetchAikeys()
+          }
           return Promise.resolve({
             data: res.data.rows,
             total: res.data.count,
@@ -197,6 +258,9 @@ function UserPage() {
         onOpenChange={(visible) => {
           if (!visible) {
             form.resetFields()
+          } else {
+            // Fetch API keys when modal opens
+            fetchAikeys()
           }
           setEditInfoModal((info) => {
             return {
@@ -211,18 +275,20 @@ function UserPage() {
 				...values,
 			})
 			if (res.code) {
-				message.error('Add failed')
+				message.error(res.message || 'Add failed')
 				return false
 			}
+            message.success('Created successfully')
           } else {
             const res = await putAdminUsers({
               ...values,
               id: edidInfoModal.info?.id
             })
             if (res.code) {
-              message.error('Edit failed')
+              message.error(res.message || 'Edit failed')
               return false
             }
+            message.success('Updated successfully')
           }
           tableActionRef.current?.reload?.()
           return true
@@ -271,6 +337,18 @@ function UserPage() {
               }
             ]}
             rules={[{ required: true, message: 'Please enter remaining points' }]}
+          />
+          <ProFormSelect
+            name="aikey_id"
+            label="API Key"
+            placeholder="Select API Key (Optional)"
+            options={aikeyOptions}
+            fieldProps={{
+              showSearch: true,
+              allowClear: true,
+              filterOption: (input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+            }}
           />
         </ProFormGroup>
         {/* <ProFormGroup>

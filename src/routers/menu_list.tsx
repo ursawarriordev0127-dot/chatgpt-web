@@ -54,7 +54,7 @@ const admin = {
   routes: [
     {
       path: '/admin',
-      name: 'Welcome',
+      name: 'Dashboard',
       icon: <SmileFilled />
     },
     {

@@ -3,7 +3,8 @@ import {
   delAdminAikey,
   putAdminAikey,
   postAdminAikey,
-  postAdminAikeyCheck
+  postAdminAikeyCheck,
+  fetchAikeyModels
 } from '@/request/adminApi'
 import { AikeyInfo } from '@/types/admin'
 import {
@@ -18,74 +19,9 @@ import {
   ProFormText
 } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
-import { Button, Form, Progress, Space, Tag, message } from 'antd'
+import { Button, Form, Progress, Space, Tag, message, Spin } from 'antd'
 import { useRef, useState } from 'react'
 import moment from 'moment'
-
-const getModels = (type: string) => {
-  if (type === 'stability') {
-    return [
-      {
-        label: 'stable-diffusion-v1-5',
-        value: 'stable-diffusion-v1-5'
-      }
-    ]
-  }
-  return [
-    {
-      label: 'OpenAI (dall-e) Drawing',
-      value: 'dall-e'
-    },
-    {
-      label: 'gpt-3.5-turbo',
-      value: 'gpt-3.5-turbo'
-    },
-    {
-      label: 'gpt-3.5-turbo-16k',
-      value: 'gpt-3.5-turbo-16k'
-    },
-    {
-      label: 'gpt-3.5-turbo-0613',
-      value: 'gpt-3.5-turbo-0613'
-    },
-    {
-      label: 'gpt-3.5-turbo-16k-0613',
-      value: 'gpt-3.5-turbo-16k-0613'
-    },
-    {
-      label: 'text-davinci-003',
-      value: 'text-davinci-003'
-    },
-    {
-      label: 'code-davinci-002',
-      value: 'code-davinci-002'
-    },
-    {
-      label: 'gpt-4',
-      value: 'gpt-4'
-    },
-    {
-      label: 'gpt-4-0613',
-      value: 'gpt-4-0613'
-    },
-    {
-      label: 'gpt-4-32k',
-      value: 'gpt-4-32k'
-    },
-    {
-      label: 'gpt-4-32k-0613',
-      value: 'gpt-4-32k-0613'
-    },
-    {
-      label: 'gpt-5',
-      value: 'gpt-5'
-    },
-    {
-      label: 'gpt-5-mini',
-      value: 'gpt-5-mini'
-    }
-  ]
-}
 
 function AikeyPage() {
   const tableActionRef = useRef<ActionType>()
@@ -206,14 +142,20 @@ function AikeyPage() {
           key="del"
           type="text"
           danger
-          onClick={() => {
-            delAdminAikey({
-              id: data.id
-            }).then((res) => {
-              if (res.code) return
+          onClick={async () => {
+            try {
+              const res = await delAdminAikey({
+                id: data.id
+              })
+              if (res.code) {
+                message.error(res.message || 'Delete failed')
+                return
+              }
               message.success('Deleted successfully')
               tableActionRef.current?.reload()
-            })
+            } catch (error: any) {
+              message.error(error.message || 'Delete failed')
+            }
           }}
         >
           Delete
@@ -234,6 +176,8 @@ function AikeyPage() {
   }
   const [inputHost, setInputHost] = useState<Array<{ label: string; value: string }>>([])
   const [hostOptions, setHostOptions] = useState<Array<{ label: string; value: string }>>([])
+  const [availableModels, setAvailableModels] = useState<Array<{ label: string; value: string }>>([])
+  const [fetchingModels, setFetchingModels] = useState(false)
 
   return (
     <div>
@@ -310,6 +254,7 @@ function AikeyPage() {
         onOpenChange={(visible) => {
           if (!visible) {
             form.resetFields()
+            setAvailableModels([]) // Clear fetched models when modal closes
           }
           setEditInfoModal((info) => {
             return {
@@ -327,9 +272,10 @@ function AikeyPage() {
               id: edidInfoModal.info?.id
             })
             if (res.code) {
-              message.error('Edit failed')
+              message.error(res.message || 'Edit failed')
               return false
             }
+            message.success('Updated successfully')
             tableActionRef.current?.reload?.()
           } else {
             const res = await postAdminAikey({
@@ -337,11 +283,11 @@ function AikeyPage() {
               models
             })
             if (res.code) {
-              message.error('Add failed')
+              message.error(res.message || 'Add failed')
               return false
             }
+            message.success('Created successfully')
             tableActionRef.current?.reloadAndRest?.()
-            message.success('Submitted successfully')
           }
           return true
         }}
@@ -458,24 +404,78 @@ function AikeyPage() {
           placeholder="Key"
           rules={[{ required: true, message: 'Please enter Key' }]}
         />
-        <ProFormDependency name={['type']}>
-          {({ type }) => {
+        <ProFormDependency name={['type', 'key', 'host']}>
+          {({ type, key, host }) => {
+            const handleFetchModels = async () => {
+              if (!key || !host) {
+                message.warning('Please enter both Key and Host first')
+                return
+              }
+              
+              setFetchingModels(true)
+              try {
+                const res = await fetchAikeyModels({ key, host })
+                if (res.code) {
+                  message.error(res.message || 'Failed to fetch models')
+                  return
+                }
+                
+                const models = res.data || []
+                if (models.length === 0) {
+                  message.warning('No models found for this API key')
+                  return
+                }
+                
+                setAvailableModels(models)
+                // Auto-select all fetched models only if no models are currently selected
+                const currentModels = form.getFieldValue('models') || []
+                if (currentModels.length === 0) {
+                  form.setFieldsValue({ models: models.map(m => m.value) })
+                }
+                message.success(`Found ${models.length} available model(s)`)
+              } catch (error: any) {
+                message.error(error.message || 'Failed to fetch models')
+              } finally {
+                setFetchingModels(false)
+              }
+            }
+            
+            // Use fetched models if available, otherwise use default models
+            const modelOptions = availableModels.length > 0 
+              ? availableModels 
+              : []
+            
             return (
-              <ProFormSelect
-                name="models"
-                label="Applicable Models"
-                options={getModels(type)}
-                fieldProps={{
-                  mode: 'multiple'
-                }}
-                placeholder="Please select AI models available for this Token"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please select AI models available for this Token!'
+              <div>
+                <ProFormSelect
+                  name="models"
+                  label="Applicable Models"
+                  options={modelOptions}
+                  fieldProps={{
+                    mode: 'multiple'
+                  }}
+                  placeholder="Please select AI models available for this Token"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select AI models available for this Token!'
+                    }
+                  ]}
+                  extra={
+                    type === 'openai' && key && host ? (
+                      <Button
+                        type="link"
+                        size="small"
+                        onClick={handleFetchModels}
+                        loading={fetchingModels}
+                        style={{ padding: 0, marginTop: 4 }}
+                      >
+                        {fetchingModels ? 'Fetching models...' : '🔍 Fetch available models from API'}
+                      </Button>
+                    ) : null
                   }
-                ]}
-              />
+                />
+              </div>
             )
           }}
         </ProFormDependency>
