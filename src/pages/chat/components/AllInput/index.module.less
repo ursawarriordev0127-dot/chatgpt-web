@@ -41,17 +41,17 @@
     border-radius: 28px;
     padding: 14px 18px;
     border: 2px solid rgba(229, 231, 235, 0.8);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    // box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
     &:hover {
-        box-shadow: 0 6px 28px rgba(22, 119, 255, 0.12), 0 0 0 1px rgba(22, 119, 255, 0.1) inset;
+        // box-shadow: 0 6px 28px rgba(22, 119, 255, 0.12), 0 0 0 1px rgba(22, 119, 255, 0.1) inset;
         border-color: rgba(22, 119, 255, 0.3);
         transform: translateY(-2px);
     }
 
     &:focus-within {
-        box-shadow: 0 8px 32px rgba(22, 119, 255, 0.2), 0 0 0 3px rgba(22, 119, 255, 0.1) inset;
+        // box-shadow: 0 8px 32px rgba(22, 119, 255, 0.2), 0 0 0 3px rgba(22, 119, 255, 0.1) inset;
         border-color: #1677ff;
         background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(248, 250, 252, 1) 100%);
         animation: glow 2s ease-in-out infinite;
@@ -67,6 +67,16 @@
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
+        height: 100px !important;
+        min-height: 100px !important;
+    }
+    
+    :global(.ant-select-selection-search) {
+        height: 100% !important;
+    }
+    
+    :global(.ant-select-selection-placeholder) {
+        height: 100% !important;
     }
 }
 
@@ -78,6 +88,8 @@
     font-size: 16px !important;
     line-height: 1.6 !important;
     resize: none !important;
+    height: 75px !important;
+    min-height: 75px !important;
     font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "InterVariable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
     color: #1a1a1a !important;
     font-weight: 400 !important;
@@ -85,6 +97,11 @@
     transition: all 0.3s ease !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
+    
+    :global(textarea) {
+        height: 80px !important;
+        min-height: 80px !important;
+    }
 
     &:focus {
         background: transparent !important;
@@ -254,13 +271,27 @@
 
     .inputWrapper {
         max-width: 100%;
+        height: 100px !important;
         padding: 12px 14px;
         border-radius: 20px;
     }
 
+    .autoComplete {
+        :global(.ant-select-selector) {
+            height: 80px !important;
+            min-height: 80px !important;
+        }
+    }
+    
     .textArea {
+        height: 70px !important;
         font-size: 14px !important;
         padding: 4px 8px !important;
+        
+        :global(textarea) {
+            height: 70px !important;
+            min-height: 70px !important;
+        }
     }
 
     .sendButton,
@@ -286,9 +317,23 @@
         border-radius: 16px;
     }
 
+    .autoComplete {
+        :global(.ant-select-selector) {
+            height: 80px !important;
+            min-height: 80px !important;
+        }
+    }
+    
     .textArea {
         font-size: 13px !important;
         padding: 4px 6px !important;
+        height: 70px !important;
+        min-height: 70px !important;
+        
+        :global(textarea) {
+            height: 70px !important;
+            min-height: 70px !important;
+        }
     }
 
     .sendButton,

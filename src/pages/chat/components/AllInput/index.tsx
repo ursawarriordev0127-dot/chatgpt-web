@@ -1,7 +1,7 @@
 import { AutoComplete, Button, Input } from 'antd'
 import styles from './index.module.less'
 import { SyncOutlined, ArrowUpOutlined, AudioOutlined } from '@ant-design/icons'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { promptStore } from '@/store'
 import useDocumentResize from '@/hooks/useDocumentResize'
 
@@ -15,8 +15,31 @@ type Props = {
 function AllInput(props: Props) {
   const [prompt, setPrompt] = useState('')
   const { localPrompt } = promptStore()
+  const textAreaRef = useRef<any>(null)
 
   const bodyResize = useDocumentResize()
+  
+  // Disable spellcheck on the actual textarea element
+  useEffect(() => {
+    const disableSpellCheck = () => {
+      // Find textarea within the allInput container
+      const container = document.querySelector(`.${styles.allInput}`)
+      if (container) {
+        const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+        if (textarea) {
+          textarea.spellcheck = false
+          textarea.setAttribute('spellcheck', 'false')
+          textarea.setAttribute('autocomplete', 'off')
+          textarea.setAttribute('autocorrect', 'off')
+          textarea.setAttribute('autocapitalize', 'off')
+        }
+      }
+    }
+    
+    disableSpellCheck()
+    const timer = setTimeout(() => disableSpellCheck(), 50)
+    return () => clearTimeout(timer)
+  }, [prompt])
 
   const searchOptions = useMemo(() => {
     if (prompt.startsWith('/')) {
@@ -49,6 +72,7 @@ function AllInput(props: Props) {
           value={prompt}
           options={searchOptions}
           className={styles.autoComplete}
+          dropdownMatchSelectWidth={true}
           onSelect={(value) => {
             setPrompt(value)
           }}
@@ -57,9 +81,13 @@ function AllInput(props: Props) {
             value={prompt}
             size="large"
             placeholder="How can I help you today?"
+            spellCheck={false}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
             autoSize={{
-              minRows: 1,
-              maxRows: 1
+              minRows: 3,
+              maxRows: 3
             }}
             onPressEnter={(e) => {
               if (e.key === 'Enter' && e.keyCode === 13 && e.shiftKey) {
