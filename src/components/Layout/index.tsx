@@ -23,6 +23,8 @@ type Props = {
   menuFooterRender?: (props?: any) => React.ReactNode
   menuProps?: MenuProps
   children?: React.ReactNode
+  collapsed?: boolean
+  onCollapse?: (collapsed: boolean) => void
 }
 
 function Layout(props: Props) {
@@ -69,8 +71,11 @@ function Layout(props: Props) {
         locale: false,
         collapsedShowGroupTitle: false
       }}
-      suppressSiderWhenMenuEmpty
+      suppressSiderWhenMenuEmpty={false}
       siderWidth={300}
+      breakpoint="lg"
+      collapsed={props.collapsed !== undefined ? props.collapsed : false}
+      onCollapse={props.onCollapse}
       menuExtraRender={menuExtraRender}
       menuItemRender={menuItemRender}
       route={props.route}

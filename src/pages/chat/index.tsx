@@ -1,4 +1,5 @@
 import { Button, Popconfirm, Space, Select, message } from 'antd'
+import { MenuOutlined } from '@ant-design/icons'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import styles from './index.module.less'
@@ -35,6 +36,7 @@ function ChatPage() {
   const isMobile = useMobile()
 
   const [fetchController, setFetchController] = useState<AbortController | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(isMobile) // Hidden on mobile by default, visible on desktop
 
   useLayoutEffect(() => {
     if (scrollRef) {
@@ -242,6 +244,8 @@ function ChatPage() {
   return (
     <div className={styles.chatPage}>
       <Layout
+        collapsed={sidebarCollapsed}
+        onCollapse={(collapsed) => setSidebarCollapsed(collapsed)}
         menuExtraRender={() => <CreateChat />}
         route={{
           path: '/',
@@ -312,9 +316,31 @@ function ChatPage() {
             if (selectChatId !== id) {
               changeSelectChatId(id)
             }
+            // Close sidebar on mobile when selecting a conversation
+            if (isMobile) {
+              setSidebarCollapsed(true)
+            }
           }
         }}
       >
+        {/* Mobile sidebar overlay - click outside to close */}
+        {isMobile && !sidebarCollapsed && (
+          <div 
+            className={styles.mobileSidebarOverlay}
+            onClick={() => setSidebarCollapsed(true)}
+          />
+        )}
+        {/* Mobile sidebar toggle button */}
+        {isMobile && (
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<MenuOutlined />}
+            className={styles.mobileSidebarToggle}
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? "Open Menu" : "Close Menu"}
+          />
+        )}
         <div className={styles.chatPage_container}>
           {/* {
             chatMessages[0]?.persona_id && <div className={styles.chatPage_container_persona}>Currently using preset persona conversation</div>

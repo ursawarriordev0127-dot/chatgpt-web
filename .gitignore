@@ -42,6 +42,8 @@ dist-ssr
 /.next/
 /out/
 
+/server/config/index.ts
+
 # production
 /build
 
