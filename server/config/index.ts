@@ -27,7 +27,7 @@ function getConfig(key?: keyof Config): any {
       host: '127.0.0.1',
       port: 5432,
       username: 'postgres',
-      password: '123qwe!@#QWE',
+      password: 'postgres',
       database: 'chatgpt-web',
       timezone: '+08:00',
       dialectOptions: {
